@@ -29,7 +29,7 @@ class DummyGenerator implements Generator {
 	}
 
 	@Override
-	public int generate(List<EnvironmentSpec> envSpec, File generatorSpecFile, File outputDir) {
+	public int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorSpecFile, File outputDir) {
 		return 0;
 	}
 }

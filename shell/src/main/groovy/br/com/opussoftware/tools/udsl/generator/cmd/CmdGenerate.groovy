@@ -30,9 +30,9 @@ class CmdGenerate {
 	@ShellMethod(value="Gera artefatos para o ambiente alvo a partir dos arquivos uDSL especificados")
 	public String generate(
 		@ShellOption(
-			value= ["-g","--generator"],
-			help="Gerador a ser utilizado. Para uma lista dos geradores disponíveis, utilize o comando listGenerators")
-		String generator,
+			value= ["-i","--input"],
+			help="Arquivo ou diretório de entrada. Caso seja um diretório, todos os arquivos com extensão .udsl serão processados")
+		File inputFileOrDir,
 		@ShellOption(
 			value= ["-s","--specFile"],
 			help="Arquivo contendo parâmetros para geração do código")
@@ -41,13 +41,27 @@ class CmdGenerate {
 			value= ["-o","--outputDir"],
 			help="Diretório onde os artefatos serão criados. O diretório será criado caso não exista")
 		File outputDir,
+		
 		@ShellOption(
-			value= ["-i","--input"],
-			help="Arquivo ou diretório de entrada. Caso seja um diretório, todos os arquivos com extensão .udsl serão processados")
-		File inputFileOrDir ) {
+			value = ["-e", "--env"],
+			help = "Environment a ser utilizado para a parametrização. Se não fornecido, será utilizado o Environment padrão do arquivo de configuração",
+			defaultValue = "" )
+		String environment 		
+		) {
+		
+		log.info "Diretório de saída informado: ${outputDir}"
+		
+		// Processa arquivo de configuração passado
+		log.info "Processando arquivo de parametrização: ${specFile}"
+		def script = new GroovyShell().parse(specFile)		
+		def config = new ConfigSlurper(environment).parse(script)
+		
+		if ( !config["generator"]) {
+			throw new IllegalArgumentException("Arquivo de configuração não possui a chave 'generator'. Verifique o arquivo de configuração")
+		}
 
 		// Valida o gerador passado
-		def gen = generatorRegistry.findByName(generator)
+		def gen = generatorRegistry.findByName(config.generator)
 		log.info "Gerador selecionado: ${gen.name}, versão ${gen.version}"
 		
 		
@@ -72,7 +86,13 @@ class CmdGenerate {
 		}
 		
 		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
-		gen.generate(environments, specFile, outputDir)
+		//try {
+			gen.generate(environments, config, outputDir)
+		//}
+		//catch(Exception ex) {
+		//	log.error "[E40] Erro na geração dos artefatos: ${ex.message}", ex
+		//	return -1
+		//}
 	}
 	
 	/**

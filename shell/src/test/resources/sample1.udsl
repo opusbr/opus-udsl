@@ -1,0 +1,32 @@
+package br.com.opussoftware.examples.petshop 
+
+
+
+Environment("gcsf")  { 
+
+	Endpoint('www.petshop.com.br') { 
+		Route( path: "/clientes", deployment: "SvcCliente") 
+		Route( path: "/feedback", deployment: "SvcFeedback")
+	} 
+
+	Deployment ('SvcCliente') {
+		Image( name: "opussoftware/svc-cliente:prod") 
+		Endpoint( "mydb" ) 
+		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+	} 
+
+	Deployment ('SvcFeedback') { 
+		Image( name: "opussoftware/svc-feedback:prod") 
+		Endpoint( "mydb" ) 
+		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+	} 
+
+	Deployment ('SvcAuditoria') { 
+		Image( name: "endereco.registry.docker.com/ex-api-auditoria:1.0") // version aqui viria de um parâmetro passado no momento da geração 
+		MessageChannel( name: "FilaAuditoria", role: "Consumer" )
+	} 
+
+	Endpoint( name: "mydb", target: "sqs.example.com:3306", proto: "tcp", authenticated: true) 
+
+	MessageChannel( name: "FilaAuditoria") 
+} 

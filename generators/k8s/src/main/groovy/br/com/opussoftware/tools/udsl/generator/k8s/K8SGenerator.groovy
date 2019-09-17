@@ -30,19 +30,61 @@ class K8SGenerator implements Generator {
 		return "PMS";
 	}
 
+	
 	@Override
-	public int generate(List<EnvironmentSpec> envSpec, File generatorSpecFile, File outputDir) {
+	public int generate(List<EnvironmentSpec> envSpec, ConfigObject config, File outputDir) {
 		
+		def generatedFiles = 0
+		
+		def helper = new K8SHelper()
+		def tfHelper = new TFHelper()
 		
 		envSpec.each { env ->
 
 			def ftb = new FileTreeBuilder(outputDir)
 			
 			ftb.dir(env.name) { 
+				
+				// entry point do módulo
+				file("main.tf",K8SGenerator.processTemplate("main.tf.tpl",[
+								env: env,
+								config: config,
+								k8s: helper,
+								tf: tfHelper
+								]))
+							generatedFiles++
+				
+				// Gera um módulo para cada ingress pendurado no environment
+				// Estes endpoint são os de entradas
+				dir("ingress") {
+					env.endpoints.each { ep ->
+						dir(ep.name) {
+							file("main.tf",K8SGenerator.processTemplate("ingress.tf.tpl",[
+								env: env,
+								endpoint: ep,
+								config: config,
+								k8s: helper
+								]))
+							generatedFiles++
+						}
+					}
+				}
+
+				// Para cada deployment crio um deployment em si e um
+				// serviço
 				env.deployments.each { deployment ->
 					dir(deployment.name) {
-						file("main.tf",K8SGenerator.processTemplate("deployment.tf.tpl",[
+												
+						file("deployment.tf",K8SGenerator.processTemplate("deployment.tf.tpl",[							
+							env: env,
+							config: config,
+							k8s: helper,
+							deployment:deployment]))
+						
+						file("service.tf",K8SGenerator.processTemplate("service.tf.tpl",[
 							env: envSpec,
+							config: config,
+							k8s: helper,
 							deployment:deployment]))
 					}
 				}
@@ -50,11 +92,11 @@ class K8SGenerator implements Generator {
 			
 		}
 		
-		return 0
+		return generatedFiles
 	}
 	
 	
-	protected static String processTemplate(String template, Map bindings) {
+	protected static byte[] processTemplate(String template, Map bindings) {
 		
 		log.info("Processando template: ${template}")
 		
@@ -64,7 +106,7 @@ class K8SGenerator implements Generator {
 			
 			StringWriter sw = new StringWriter()
 			tpl.make(bindings).writeTo(sw)
-			return sw.toString();
+			return sw.toString().getBytes("UTF-8");
 		}
 		finally {
 			r.close();

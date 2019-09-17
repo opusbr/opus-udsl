@@ -1,44 +1,54 @@
 /*
- * Exemplo de ingress
+ * Kubernetes Ingress module
  */
- 
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: endereco.entrada.exemplo.com.br
-  namespace: novos-canais
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: endereco.entrada.exemplo.com.br
-    http:
-      paths:
-      - backend:
-          serviceName: ex-api-auditoria
-          servicePort: 80
-        path: /ex-api-auditoria
-      - backend:
-          serviceName: ex-api-novos-canais-home
-          servicePort: 80
-        path: /ex-api-novos-canais-home
-      - backend:
-          serviceName: ex-api-cliente
-          servicePort: 80
-        path: /ex-api-cliente
-      - backend:
-          serviceName: ex-api-fatura
-          servicePort: 80
-        path: /ex-api-fatura
-      - backend:
-          serviceName: ex-api-feedback
-          servicePort: 80
-        path: /ex-api-feedback
-      - backend:
-          serviceName: ex-api-parcelamento
-          servicePort: 80
-        path: /ex-api-parcelamento
-  tls:
-  - hosts:
-    - endereco.entrada.exemplo.com.br
-    secretName: exemplo.com.br 
+
+provider "kubernetes" {}
+
+variable "ingress_name" {
+    type = string
+    description = "Nome do objeto a ser criado no Kubernetes para o ingress. Se nao informado um nome aleatorio sera gerado"
+    default = "${k8s.ingressName(endpoint)}"
+}
+
+variable "ingress_host" {
+    type = string
+    description = "Hostname a ser utilizado no ingress"
+    default = "${endpoint.name}"
+}
+
+locals {
+    iname = var.ingress_name == "" ? join("-",["ingress",sha1(uuid())]) : var.ingress_name
+}
+
+resource "kubernetes_ingress" "ingress" {
+
+    metadata {
+        name = local.iname
+        annotations = map(
+            "nginx.ingress.kubernetes.io/rewrite-target","/"
+        )
+    }
+
+    spec {
+        rule {
+            http {
+            
+<%  endpoint.routes.each { route -> %>            
+                path {
+                    backend {
+                        service_name = "${route.deployment}"
+                        service_port = ${config?.deployment[route.deployment].port?:config?.deployment?.defaultPort?:8080}
+                    }
+
+                    path = "${route.path}/*"
+                }
+<% } %>
+            }
+        }
+
+    tls {
+      secret_name = "tls-secret"
+    }
+  }
+}
+

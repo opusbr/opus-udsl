@@ -10,7 +10,14 @@ interface Generator {
 	String getVersion();
 	String getAuthor();
 	
-	int generate(List<EnvironmentSpec> envSpec, File generatorSpecFile, File outputDir)
+	/**
+	 * Gera artefatos para os ambientes indicados.
+	 * @param envSpec
+	 * @param generatorConfig Dados de configuração utilizados pelo gerados
+	 * @param outputDir Diretório-raiz para geração dos artefatos
+	 * @return Quantidade de artefatos gerados
+	 */
+	int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorConfig, File outputDir  )
 	
 	
 }

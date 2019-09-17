@@ -1,16 +1,48 @@
 package br.com.opussoftware.tools.udsl.generator
 
+import java.nio.file.Files
+
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
+import org.springframework.shell.Shell
+import org.springframework.shell.jline.InteractiveShellApplicationRunner
 import org.springframework.test.context.junit4.SpringRunner
 
-@RunWith(SpringRunner)
-@SpringBootTest
-class OpusUdslGeneratorApplicationTests {
+import groovy.util.logging.Slf4j
+
+import org.springframework.shell.Input
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+	properties = [ "spring.shell.interactive.enabled=false" ])
+@Slf4j
+public class OpusUdslGeneratorApplicationTests {
+
+	@Autowired
+	private Shell shell;
 
 	@Test
-	public void contextLoads() {
-	}
+	public void testGenerateK8S() {
+		
+		def tempDir = Files.createTempDirectory("junit")
+		def modelFile = new File(this.getClass().getResource("/sample1.udsl").toURI())
+		def configFile = new File(this.getClass().getResource("/sample1.config").toURI())
+		
+		def result = shell.evaluate(new Input() {
 
+			@Override
+			public String rawText() {
+				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+			}
+		})
+		
+		if ( result instanceof Throwable ) {
+			log.error "Erro executando comando: ${result.message}", result
+			throw result
+		}
+		
+	}
 }

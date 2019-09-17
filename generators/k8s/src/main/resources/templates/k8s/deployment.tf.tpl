@@ -1,58 +1,43 @@
+/*
+ * Deployment para o servico ${deployment.name}
+ */
+
 resource "kubernetes_deployment" "${deployment.name}" {
+
   metadata {
-    name = "xxx"
+    name = "${k8s.validName(deployment.name)}"
     labels = {
-      test = "MyExampleApp"
+      app = "${deployment.name}"
     }
   }
 
   spec {
-    replicas = 3
+    replicas = ${config.deployment[deployment.name].replicas?:1}
 
     selector {
       match_labels = {
-        test = "MyExampleApp"
+        app = "${deployment.name}"
       }
     }
 
     template {
       metadata {
         labels = {
-          test = "MyExampleApp"
+	      app = "${deployment.name}"
         }
       }
 
       spec {
+<% deployment.images.each { image -> %>      
         container {
-          image = "nginx:1.7.8"
-          name  = "example"
+          image = "${image.name}"
+          name  = "${k8s.validName(image.name)}"
 
-          resources {
-            limits {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
-
-          liveness_probe {
-            http_get {
-              path = "/nginx_status"
-              port = 80
-
-              http_header {
-                name  = "X-Custom-Header"
-                value = "Awesome"
-              }
-            }
-
+			// TODO: Suporte a parametros para estes delays
             initial_delay_seconds = 3
             period_seconds        = 3
-          }
         }
+<% } %>        
       }
     }
   }
