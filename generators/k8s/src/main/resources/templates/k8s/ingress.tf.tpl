@@ -36,7 +36,7 @@ resource "kubernetes_ingress" "ingress" {
 <%  endpoint.routes.each { route -> %>            
                 path {
                     backend {
-                        service_name = "${route.deployment}"
+                        service_name = "${k8s.validName(route.deployment)}"
                         service_port = ${config?.deployment[route.deployment].port?:config?.deployment?.defaultPort?:8080}
                     }
 
