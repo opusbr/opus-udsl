@@ -32,10 +32,6 @@ resource "kubernetes_deployment" "${deployment.name}" {
         container {
           image = "${image.name}"
           name  = "${k8s.validName(image.name)}"
-
-			// TODO: Suporte a parametros para estes delays
-            initial_delay_seconds = 3
-            period_seconds        = 3
         }
 <% } %>        
       }
