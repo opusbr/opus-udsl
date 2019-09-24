@@ -51,6 +51,8 @@ class EnvironmentParser {
 	def getEnvironmentMethodMissing() {
 		
 		return { name, args ->
+
+			println "processEnvironmentRoot: name=${name}"
 			
 			if ( name.toLowerCase() == "environment" ) {
 				processEnvironmentRoot( environment, args)
@@ -62,6 +64,7 @@ class EnvironmentParser {
 	}
 	
 	def processEnvironmentRoot(environment, args) {
+		
 		
 		if ( args.size() != 2 ) {
 			throw new ParserException("sintaxe: Environment 'nome' { definição } ", Token.NULL)			

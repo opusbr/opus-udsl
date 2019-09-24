@@ -1,0 +1,27 @@
+package br.com.opussoftware.examples.petshop 
+
+
+
+Environment("gcsf")  { 
+
+	Endpoint('www2.petshop.com.br') { 
+		Route( path: "/v2/clientes", deployment: "SvcClienteV2") 
+		Route( path: "/v2/feedback", deployment: "SvcFeedbackV2")
+	} 
+
+	Deployment ('SvcClienteV2') {
+		Image( name: "httpd") 
+		Endpoint( "mydb" ) 
+		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+	} 
+
+	Deployment ('SvcFeedbackV2') { 
+		Image( name: "httpd") 
+		Endpoint( "mydb" ) 
+		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+	} 
+
+	Endpoint( name: "mydb", target: "sqs.example.com:3306", proto: "tcp", authenticated: true) 
+
+	MessageChannel( name: "FilaAuditoria") 
+} 

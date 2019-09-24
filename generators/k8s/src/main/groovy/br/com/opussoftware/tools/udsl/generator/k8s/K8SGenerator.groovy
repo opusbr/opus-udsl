@@ -71,6 +71,23 @@ class K8SGenerator implements Generator {
 						}
 					}
 				}
+				
+				// Gera um módulo para cada enpoint de saída
+				dir("external") {
+					env.externalEndpoints.each { ep ->
+						if ( ep.routes.size() == 0 ) {
+							dir( ep.name ) {
+								file("main.tf",true,K8SGenerator.processTemplate(loader,"external-endpoint.tf.tpl",[
+								env: env,
+								endpoint: ep,
+								config: config,
+								k8s: k8sHelper
+								]))
+							generatedFiles++
+							}
+						}						
+					}
+				}
 
 				// Para cada deployment crio um deployment em si e um
 				// serviço

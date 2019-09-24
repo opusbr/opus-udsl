@@ -7,6 +7,7 @@ class EndpointSpec {
 	String name;
 	String target;
 	String proto;
+	String port
 	boolean authenticated
 	List<RouteSpec> routes = []
 	

@@ -45,4 +45,27 @@ public class OpusUdslGeneratorApplicationTests {
 		}
 		
 	}
+	
+	@Test
+	public void testGenerateK8SFromDir() {
+		
+		def tempDir = Files.createTempDirectory("junit")
+		def modelFile = new File("src/test/resources")
+		def configFile = new File(this.getClass().getResource("/sample1.config").toURI())
+		
+		def result = shell.evaluate(new Input() {
+
+			@Override
+			public String rawText() {
+				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+			}
+		})
+		
+		if ( result instanceof Throwable ) {
+			log.error "Erro executando comando: ${result.message}", result
+			throw result
+		}
+		
+	}
+
 }

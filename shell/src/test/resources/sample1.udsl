@@ -1,6 +1,8 @@
 package br.com.opussoftware.examples.petshop 
 
 
+def FILA_AUDITORIA = "FilaAuditoria"
+def IMAGE_APP = "httpd"
 
 Environment("gcsf")  { 
 
@@ -10,23 +12,23 @@ Environment("gcsf")  {
 	} 
 
 	Deployment ('SvcCliente') {
-		Image( name: "httpd") 
+		Image( name:IMAGE_APP) 
 		Endpoint( "mydb" ) 
-		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+		MessageChannel( name: FILA_AUDITORIA, role: "Producer" )
 	} 
 
 	Deployment ('SvcFeedback') { 
-		Image( name: "httpd") 
+		Image( name: IMAGE_APP) 
 		Endpoint( "mydb" ) 
-		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+		MessageChannel( name: FILA_AUDITORIA, role: "Producer" )
 	} 
 
 	Deployment ('SvcAuditoria') { 
-		Image( name: "httpd") // version aqui viria de um parâmetro passado no momento da geração 
+		Image( name: IMAGE_APP ) // version aqui viria de um parâmetro passado no momento da geração 
 		MessageChannel( name: "FilaAuditoria", role: "Consumer" )
 	} 
 
-	Endpoint( name: "mydb", target: "sqs.example.com:3306", proto: "tcp", authenticated: true) 
+	Endpoint( name: "mydb", target: "sqs.example.com", port: 3306, proto: "tcp", authenticated: true) 
 
-	MessageChannel( name: "FilaAuditoria") 
+	MessageChannel( name: FILA_AUDITORIA ) 
 } 
