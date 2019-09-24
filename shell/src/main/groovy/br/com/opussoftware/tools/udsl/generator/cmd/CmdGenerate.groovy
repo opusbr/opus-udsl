@@ -7,6 +7,7 @@ import org.springframework.shell.standard.ShellMethod
 import org.springframework.shell.standard.ShellOption
 
 import br.com.opussoftware.tools.udsl.generator.GeneratorRegistry
+import br.com.opussoftware.tools.udsl.generator.ResourceLoader
 import br.com.opussoftware.udsl.EnvironmentParser
 import groovy.util.logging.Slf4j
 
@@ -25,6 +26,9 @@ class CmdGenerate {
 	
 	@Autowired
 	private EnvironmentParser environmentParser
+	
+	@Autowired
+	private ResourceLoader resourceLoader;
 	
 	
 	@ShellMethod(value="Gera artefatos para o ambiente alvo a partir dos arquivos uDSL especificados")
@@ -86,13 +90,7 @@ class CmdGenerate {
 		}
 		
 		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
-		//try {
-			gen.generate(environments, config, outputDir)
-		//}
-		//catch(Exception ex) {
-		//	log.error "[E40] Erro na geração dos artefatos: ${ex.message}", ex
-		//	return -1
-		//}
+		gen.generate(environments, config, outputDir, resourceLoader)
 	}
 	
 	/**

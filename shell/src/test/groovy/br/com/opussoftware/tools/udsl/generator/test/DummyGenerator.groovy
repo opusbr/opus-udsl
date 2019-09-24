@@ -3,6 +3,7 @@ package br.com.opussoftware.tools.udsl.generator.test
 import org.springframework.stereotype.Component
 
 import br.com.opussoftware.tools.udsl.generator.Generator
+import br.com.opussoftware.tools.udsl.generator.ResourceLoader
 import br.com.opussoftware.udsl.model.EnvironmentSpec
 
 @Component
@@ -29,7 +30,7 @@ class DummyGenerator implements Generator {
 	}
 
 	@Override
-	public int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorSpecFile, File outputDir) {
+	public int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorSpecFile, File outputDir, ResourceLoader resourceLoader ) {
 		return 0;
 	}
 }

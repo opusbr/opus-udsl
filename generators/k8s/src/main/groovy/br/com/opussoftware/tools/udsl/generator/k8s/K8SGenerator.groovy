@@ -1,6 +1,8 @@
 package br.com.opussoftware.tools.udsl.generator.k8s
 
 import br.com.opussoftware.tools.udsl.generator.Generator
+import br.com.opussoftware.tools.udsl.generator.ResourceLoader
+import br.com.opussoftware.tools.udsl.generator.util.FileTreeBuilder
 import br.com.opussoftware.udsl.model.EnvironmentSpec
 import groovy.text.StreamingTemplateEngine
 import groovy.util.logging.Slf4j
@@ -32,11 +34,11 @@ class K8SGenerator implements Generator {
 
 	
 	@Override
-	public int generate(List<EnvironmentSpec> envSpec, ConfigObject config, File outputDir) {
+	public int generate(List<EnvironmentSpec> envSpec, ConfigObject config, File outputDir, ResourceLoader loader) {
 		
 		def generatedFiles = 0
 		
-		def helper = new K8SHelper()
+		def k8sHelper = new K8SHelper()
 		def tfHelper = new TFHelper()
 		
 		envSpec.each { env ->
@@ -46,10 +48,10 @@ class K8SGenerator implements Generator {
 			ftb.dir(env.name) { 
 				
 				// entry point do módulo
-				file("main.tf",K8SGenerator.processTemplate("main.tf.tpl",[
+				file("main.tf",true, K8SGenerator.processTemplate(loader, "main.tf.tpl",[
 								env: env,
 								config: config,
-								k8s: helper,
+								k8s: k8sHelper,
 								tf: tfHelper
 								]))
 							generatedFiles++
@@ -59,11 +61,11 @@ class K8SGenerator implements Generator {
 				dir("ingress") {
 					env.endpoints.each { ep ->
 						dir(ep.name) {
-							file("main.tf",K8SGenerator.processTemplate("ingress.tf.tpl",[
+							file("main.tf",true, K8SGenerator.processTemplate(loader,"ingress.tf.tpl",[
 								env: env,
 								endpoint: ep,
 								config: config,
-								k8s: helper
+								k8s: k8sHelper
 								]))
 							generatedFiles++
 						}
@@ -75,16 +77,16 @@ class K8SGenerator implements Generator {
 				env.deployments.each { deployment ->
 					dir(deployment.name) {
 												
-						file("deployment.tf",K8SGenerator.processTemplate("deployment.tf.tpl",[							
+						file("deployment.tf",true, K8SGenerator.processTemplate(loader,"deployment.tf.tpl",[							
 							env: env,
 							config: config,
-							k8s: helper,
+							k8s: k8sHelper,
 							deployment:deployment]))
 						
-						file("service.tf",K8SGenerator.processTemplate("service.tf.tpl",[
+						file("service.tf",true, K8SGenerator.processTemplate(loader,"service.tf.tpl",[
 							env: envSpec,
 							config: config,
-							k8s: helper,
+							k8s: k8sHelper,
 							deployment:deployment]))
 					}
 				}
@@ -96,11 +98,11 @@ class K8SGenerator implements Generator {
 	}
 	
 	
-	protected static byte[] processTemplate(String template, Map bindings) {
+	protected static byte[] processTemplate(ResourceLoader loader, String template, Map bindings) {
 		
 		log.info("Processando template: ${template}")
 		
-		Reader r= locateTemplate(template);
+		Reader r= locateTemplate(loader, template);
 		try {
 			def tpl = new StreamingTemplateEngine().createTemplate(r);
 			
@@ -114,13 +116,9 @@ class K8SGenerator implements Generator {
 		
 	}
 	
-	protected static Reader locateTemplate(String tpl) {
-		
-		if ( !tpl.startsWith("/")) {
-			tpl = "${TEMPLATE_PREFIX}${tpl}"
-		}
-		
-		InputStream is = getClass().getResourceAsStream(tpl)
+	protected static Reader locateTemplate(ResourceLoader loader, String tpl) {
+				
+		InputStream is = loader.getResourceAsStream(TEMPLATE_PREFIX + tpl)
 		if ( is == null ) {
 			throw new IllegalArgumentException("Template não encontrado: ${tpl}")
 		}

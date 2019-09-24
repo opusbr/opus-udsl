@@ -1,8 +1,12 @@
 /*
  * 
  */
+<%
+def dollar = '$'
+%> 
  
  provider "kubernetes" {}
+ 
  
  // Ingress
  <% env.endpoints.each { ep -> %>
@@ -19,3 +23,5 @@ module "${tf.moduleName(dep.name)}" {
   source = "./${dep.name}"
 } 
 <% } %>
+
+

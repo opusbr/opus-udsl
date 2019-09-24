@@ -17,7 +17,7 @@ interface Generator {
 	 * @param outputDir Diretório-raiz para geração dos artefatos
 	 * @return Quantidade de artefatos gerados
 	 */
-	int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorConfig, File outputDir  )
+	int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorConfig, File outputDir, ResourceLoader resourceLoader  )
 	
 	
 }

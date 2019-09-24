@@ -10,19 +10,19 @@ Environment("gcsf")  {
 	} 
 
 	Deployment ('SvcCliente') {
-		Image( name: "opussoftware/svc-cliente:prod") 
+		Image( name: "httpd") 
 		Endpoint( "mydb" ) 
 		MessageChannel( name: "FilaAuditoria", role: "Producer" )
 	} 
 
 	Deployment ('SvcFeedback') { 
-		Image( name: "opussoftware/svc-feedback:prod") 
+		Image( name: "httpd") 
 		Endpoint( "mydb" ) 
 		MessageChannel( name: "FilaAuditoria", role: "Producer" )
 	} 
 
 	Deployment ('SvcAuditoria') { 
-		Image( name: "endereco.registry.docker.com/ex-api-auditoria:1.0") // version aqui viria de um parâmetro passado no momento da geração 
+		Image( name: "httpd") // version aqui viria de um parâmetro passado no momento da geração 
 		MessageChannel( name: "FilaAuditoria", role: "Consumer" )
 	} 
 
