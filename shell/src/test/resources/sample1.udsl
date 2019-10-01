@@ -5,11 +5,18 @@ def FILA_AUDITORIA = "FilaAuditoria"
 def IMAGE_APP = "httpd"
 
 Environment("gcsf")  { 
+	
 
 	Endpoint('www.petshop.com.br') { 
 		Route( path: "/clientes", deployment: "SvcCliente") 
 		Route( path: "/feedback", deployment: "SvcFeedback")
+		Route( path: "/echo", deployment: "SvcTest")
+		Route( path: "/health", deployment: "SvcTest")
 	} 
+
+	Deployment ('SvcTest') {
+		Image( name:'containous/whoami')
+	}
 
 	Deployment ('SvcCliente') {
 		Image( name:IMAGE_APP) 

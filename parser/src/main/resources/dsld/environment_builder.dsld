@@ -1,3 +1,5 @@
+package dsld;
+
 // this is a DSLD file
 // start off creating a custom DSL Descriptor for your Groovy DSL
 
@@ -8,3 +10,10 @@
 //contribute(currentType(subType('br.com.opussoftware.udsl.model.EnvironmentSpec'))) {
 //   property name : 'newProp', type : String, provider : 'Sample DSL', doc : 'This is a sample.  You should see this in content assist for GroovyObjects: <pre>newProp</pre>'/
 //}
+
+
+contribute(enclosingScript()) {
+	
+	method name: "Environment"
+	
+}

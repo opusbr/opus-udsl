@@ -40,15 +40,17 @@ resource "kubernetes_ingress" "ingress" {
                         service_port = ${config?.deployment[route.deployment].port?:config?.deployment?.defaultPort?:8080}
                     }
 
-                    path = "${route.path}/*"
+                    path = "${route.path}"
                 }
 <% } %>
             }
         }
 
+/*
     tls {
       secret_name = "tls-secret"
     }
+*/    
   }
 }
 

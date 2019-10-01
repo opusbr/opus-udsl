@@ -18,7 +18,7 @@ class EnvironmentSpec {
 	List<DeploymentSpec> deployments = []
 	List<MessageChannelSpec> messageChannels = []
 	
-	public Endpoint( String name, Closure spec) {
+	public Endpoint( String name, @DelegatesTo(value=EndpointSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
 		def delegate = new EndpointSpec(name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
@@ -39,7 +39,7 @@ class EnvironmentSpec {
 		externalEndpoints.add(ep)
 	}
 	
-	public Deployment( String name, Closure spec) {
+	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
 		def delegate = new DeploymentSpec(name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST

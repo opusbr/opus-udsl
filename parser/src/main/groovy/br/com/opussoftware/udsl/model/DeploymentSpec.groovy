@@ -8,6 +8,7 @@ class DeploymentSpec {
 	List<ImageSpec> images = []
 	List<MessageChannelSpec> channels = []
 	List<EndpointSpec> endpoints = []
+	List<DeploymentSpec> deploymentRefs = []
 	
 	public Image(Map params) {		
 		def image = new ImageSpec(params)
@@ -29,4 +30,11 @@ class DeploymentSpec {
 		endpoints.add(ep)
 	}
 
+	public Deployment(String name) {
+		if ( name == this.name ) {
+			throw new IllegalArgumentException("[E35] Referência inválida: deployment: ${this.name}, ref=${name}")
+		}
+		def dep = new DeploymentSpec(name:name)
+		deploymentRefs.add(name)
+	}
 }
