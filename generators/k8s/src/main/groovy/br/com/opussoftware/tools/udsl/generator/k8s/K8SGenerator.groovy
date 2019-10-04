@@ -41,19 +41,23 @@ class K8SGenerator implements Generator {
 		def k8sHelper = new K8SHelper()
 		def tfHelper = new TFHelper()
 		
+		
 		envSpec.each { env ->
+			
+			def baseBindings = [
+				env: env,
+				config: config,
+				k8s: k8sHelper,
+				tf: tfHelper
+			]
+
 
 			def ftb = new FileTreeBuilder(outputDir)
 			
 			ftb.dir(env.name) { 
 				
 				// entry point do módulo
-				file("main.tf",true, K8SGenerator.processTemplate(loader, "main.tf.tpl",[
-								env: env,
-								config: config,
-								k8s: k8sHelper,
-								tf: tfHelper
-								]))
+				file("main.tf",true, K8SGenerator.processTemplate(loader, "main.tf.tpl",baseBindings))
 							generatedFiles++
 				
 				// Gera um módulo para cada ingress pendurado no environment
@@ -61,12 +65,7 @@ class K8SGenerator implements Generator {
 				dir("ingress") {
 					env.endpoints.each { ep ->
 						dir(ep.name) {
-							file("main.tf",true, K8SGenerator.processTemplate(loader,"ingress.tf.tpl",[
-								env: env,
-								endpoint: ep,
-								config: config,
-								k8s: k8sHelper
-								]))
+							file("main.tf",true, K8SGenerator.processTemplate(loader,"ingress.tf.tpl",baseBindings + [endpoint:ep]))
 							generatedFiles++
 						}
 					}
@@ -77,15 +76,45 @@ class K8SGenerator implements Generator {
 					env.externalEndpoints.each { ep ->
 						if ( ep.routes.size() == 0 ) {
 							dir( ep.name ) {
-								file("main.tf",true,K8SGenerator.processTemplate(loader,"external-endpoint.tf.tpl",[
-								env: env,
-								endpoint: ep,
-								config: config,
-								k8s: k8sHelper
-								]))
-							generatedFiles++
+								file("main.tf",true,
+								  K8SGenerator.processTemplate(
+									  loader,"external-endpoint.tf.tpl",baseBindings + [endpoint:ep]))
+								generatedFiles++
 							}
 						}						
+					}
+				}
+				
+				// Módulo para configuração do provedor de mensageria. 
+				if ( !env.messageChannels.empty ) {
+					dir("messaging") {
+						
+						// Determina o provedor de mensageria. Por default será o RabbitMQ
+						def messagingProvider = config?.messaging?.provider?:"rabbitmq"
+						log.info("[I100] messagingProvider=${messagingProvider}")
+						
+						dir(messagingProvider) {
+							
+							// Arquivo principal
+							file("main.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/main.tf.tpl",baseBindings))
+							
+							// Variáveis para customização
+							file("variables.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/variables.tf.tpl",baseBindings))
+							
+							// Variáveis de saída
+							file("output.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/outputs.tf.tpl",baseBindings))
+							
+							// Canais
+							file("channels.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/channels.tf.tpl",baseBindings))
+
+
+							// Customizações locais
+							file("custom.tf",false,K8SGenerator.processTemplate(loader,"custom.tf.tpl",baseBindings))
+
+							generatedFiles++
+						}
+						
+						// 
 					}
 				}
 
@@ -94,17 +123,12 @@ class K8SGenerator implements Generator {
 				env.deployments.each { deployment ->
 					dir(deployment.name) {
 												
-						file("deployment.tf",true, K8SGenerator.processTemplate(loader,"deployment.tf.tpl",[							
-							env: env,
-							config: config,
-							k8s: k8sHelper,
-							deployment:deployment]))
+						file("deployment.tf",true, K8SGenerator.processTemplate(loader,"deployment.tf.tpl",
+							baseBindings + [deployment: deployment]))
 						
-						file("service.tf",true, K8SGenerator.processTemplate(loader,"service.tf.tpl",[
-							env: envSpec,
-							config: config,
-							k8s: k8sHelper,
-							deployment:deployment]))
+						file("service.tf",true, K8SGenerator.processTemplate(loader,"service.tf.tpl",
+							baseBindings + [deployment: deployment]))
+
 					}
 				}
 			}

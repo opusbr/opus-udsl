@@ -2,6 +2,11 @@
  * External endpoint: ${endpoint.name}
  */
 
+variable "target_address" {
+	type = string
+	description = "Endereço externo associado ao CNAME criado"
+	default = "${endpoint.target}"
+}
  
  
 resource "kubernetes_service" "${endpoint.name}" {
@@ -10,7 +15,7 @@ resource "kubernetes_service" "${endpoint.name}" {
   }
   spec {
     type = "ExternalName"
-    external_name = "${endpoint.target}"
+    external_name = var.target_address
 
   }
 }
