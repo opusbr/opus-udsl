@@ -8,7 +8,7 @@ Environment("gcsf")  {
 	
 
 	Endpoint('www.petshop.com.br') { 
-		Route( path: "/clientes", deployment: "SvcCliente") 
+		Route( path: "/clientes", deployment: "SvcCliente", contract: "cliente.yaml") 
 		Route( path: "/feedback", deployment: "SvcFeedback")
 		Route( path: "/echo", deployment: "SvcTest")
 		Route( path: "/health", deployment: "SvcTest")
@@ -37,5 +37,7 @@ Environment("gcsf")  {
 
 	Endpoint( name: "mydb", target: "sqs.example.com", port: 3306, proto: "tcp", authenticated: true) 
 
-	MessageChannel( name: FILA_AUDITORIA ) 
+	MessageChannel( name: FILA_AUDITORIA, mode: "p2p" )
+	MessageChannel( name: "fila2", mode: "p2p" )
+	
 } 

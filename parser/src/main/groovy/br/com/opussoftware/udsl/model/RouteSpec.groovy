@@ -6,5 +6,6 @@ import groovy.transform.Canonical
 class RouteSpec {	
 	String path;
 	String deployment;
+	String contract
 }
 
