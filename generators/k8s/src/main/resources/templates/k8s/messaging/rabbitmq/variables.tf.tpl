@@ -22,9 +22,33 @@ def dollar = '$'
  }
  
  
- variable "rabbitmq_management_endpoint" {
+variable "rabbitmq_management_endpoint" {
  	type = string
  	description = "Endpoint para gestão do RabitMQ"
  	default = "" 	
- }
+}
+
+variable "rabbitmq_management_username" {
+ 	type = string
+ 	description = "Usuário administrativo a ser criado"
+ 	default = "guest" 	
+}
+
+variable "rabbitmq_management_password" {
+ 	type = string
+ 	description = "Senha do usuário administrativo a ser criado"
+ 	default = "guest" 	
+}
+
+ 
+<% if ( config.messaging.external ) { %>
+variable "message_broker_address" {
+	type = string
+	description = "Endereço externo do servidor RabbitMQ"
+	default = "rabbitmq.example.com"
+}
+
+<% } %>
+ 
+ 
  

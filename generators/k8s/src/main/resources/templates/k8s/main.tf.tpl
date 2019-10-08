@@ -48,17 +48,54 @@ module "${tf.moduleName(dep.name)}" {
 
 //================================================================== Messaging
 
+<%
+def messaging_provider = config?.messaging?.provider?:'rabbitmq'
+%>
+
 variable "management_endpoint" {
 	type = string
 	description = "Endpoint para configuração do sistema de mensageria. Utilizar quando o TF não tiver acesso direto ao servidor"
 	default = ""
 }
 
-module "messaging" {
-	source = "./messaging/${config?.messaging?.provider?:'rabbitmq'}"
-	rabbitmq_management_endpoint = var.management_endpoint
+<%  if ( config.messaging.external ) { %>
+variable "message_broker_address" {
+	type = string
+	description = "Hostname do servidor de mensageria externo a ser utilizado"
+	default = "broker.example.com"
+}
+<% } %>
+
+<% if ( "rabbitmq" == messaging_provider ) { %>
+variable "rabbitmq_management_username" {
+	type = string
+	description = "Usuário administrativo para o RabbitMQ"
+	default = "admin"
+}
+
+variable "rabbitmq_management_password" {
+	type = string
+	description = "Senha do usuário administrativo do RabbitMQ"
+	default = "admin"
 }
 
 <% } %>
+
+
+
+module "messaging" {
+	source = "./messaging/${messaging_provider}"
+<% if ( "rabbitmq" == messaging_provider ) { %>
+	rabbitmq_management_endpoint = var.management_endpoint
+	rabbitmq_management_username = var.rabbitmq_management_username
+	rabbitmq_management_password = var.rabbitmq_management_password	
+<% } %>
+
+<% if ( config.messaging.external ) { %>
+	message_broker_address = var.message_broker_address
+<% } %>	
+}
+
+<% } /* if env.messageChannels.empty */ %>
 
 

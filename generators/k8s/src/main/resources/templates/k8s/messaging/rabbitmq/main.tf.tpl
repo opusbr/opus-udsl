@@ -4,7 +4,10 @@
  *
  * ARQUIVO GERADO AUTOMATICAMENTE: NÃO EDITAR !!!
  */
- 
+<% def dollar = '$' %>
+<% if ( !config.messaging.external ) { %>
+
+// Internal RabbitMQ service
 resource "kubernetes_service" "rabbitmq_server" {
   metadata {
     name = "rabbitmq"
@@ -63,14 +66,51 @@ resource "kubernetes_deployment" "rabbitmq_deployment" {
       
         container {
           image = var.rabbitmq_image
-          name  = "rabbitmq"   
+          name  = "rabbitmq"
+          
+          env { 
+          		name = "RABBITMQ_DEFAULT_USER"
+          		value = var.rabbitmq_management_username
+          }
+          
+          env { 
+          		name = "RABBITMQ_DEFAULT_PASS"
+          		value = var.rabbitmq_management_password
+          }          	
+          
+          readiness_probe {
+          	initial_delay_seconds = 10
+      		success_threshold = 2
+          	tcp_socket {
+          		port = 15672
+          	}
+          }   
         }
-
       }
     }
   }
 }
 
+<% } %>
+
+<% 
+if ( config.messaging.external ) {
+%>
+// External RabbitMQ Service
+ 
+resource "kubernetes_service" "rabbitmq_server" {
+  metadata {
+    name = "rabbitmq_server"
+  }
+  spec {
+    type = "ExternalName"
+    external_name = var.message_broker_address
+  }
+}
+
+<%
+}
+%>
 
  
  

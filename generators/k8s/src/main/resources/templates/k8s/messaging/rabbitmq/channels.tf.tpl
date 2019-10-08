@@ -8,15 +8,27 @@
 def dollar = '$'
 %>
 
+<% if ( config.messaging.external ) { %>
+locals  {
+  management_endpoint = var.rabbitmq_management_endpoint
+  rabbitmq_username = var.rabbitmq_management_username
+  rabbitmq_password = var.rabbitmq_management_password 
+  
+}
 
+<% } else { %>
 locals  {
   management_endpoint = var.rabbitmq_management_endpoint == "" ? "http://${dollar}{kubernetes_service.rabbitmq_server.load_balancer_ingress.0.ip}:15672" : var.rabbitmq_management_endpoint
+  rabbitmq_username = var.rabbitmq_management_username
+  rabbitmq_password = var.rabbitmq_management_password 
 }
+
+<% } %>
 
 provider "rabbitmq" {
 	endpoint = local.management_endpoint
-	username = "guest"
-	password = "guest"
+	username = local.rabbitmq_username
+	password = local.rabbitmq_password
 }
 
 

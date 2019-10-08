@@ -38,6 +38,6 @@ Environment("gcsf")  {
 	Endpoint( name: "mydb", target: "sqs.example.com", port: 3306, proto: "tcp", authenticated: true) 
 
 	MessageChannel( name: FILA_AUDITORIA, mode: "p2p" )
-	MessageChannel( name: "fila2", mode: "p2p" )
+	MessageChannel( name: "fila2", mode: "broadcast" )
 	
 } 
