@@ -131,6 +131,27 @@ class K8SGenerator implements Generator {
 
 					}
 				}
+				
+				// Templates para segurança. Ativados apenas quando a propriedade security.enabled == true
+				if ( config?.security?.enabled ?: false ) {
+					def securityProvider = config.security?.provider ?: 'keycloak'
+					
+					dir('security') {
+						dir(securityProvider) {
+							// Arquivo principal
+							file("main.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/main.tf.tpl",baseBindings))
+							
+							// Variáveis para customização
+							file("variables.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/variables.tf.tpl",baseBindings))
+							
+							// Variáveis de saída
+							file("output.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/outputs.tf.tpl",baseBindings))
+
+							// Customizações locais
+							file("custom.tf",false,K8SGenerator.processTemplate(loader,"custom.tf.tpl",baseBindings))
+						}
+					}
+				}
 			}
 			
 		}

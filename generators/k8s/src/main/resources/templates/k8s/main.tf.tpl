@@ -98,4 +98,14 @@ module "messaging" {
 
 <% } /* if env.messageChannels.empty */ %>
 
+<% if ( config?.security?.enabled?: false ) { %>
+//================================================================== Messaging
+<% def security_provider = config?.security?.provider?: 'keycloak' %>
+
+module "security" {
+	source = "./security/${security_provider}"	
+}
+
+<% } %>
+
 
