@@ -3,6 +3,7 @@ package br.com.opussoftware.tools.udsl.generator.k8s
 import br.com.opussoftware.tools.udsl.generator.Generator
 import br.com.opussoftware.tools.udsl.generator.ResourceLoader
 import br.com.opussoftware.tools.udsl.generator.util.FileTreeBuilder
+import br.com.opussoftware.tools.udsl.generator.util.TemplateHelper
 import br.com.opussoftware.udsl.model.EnvironmentSpec
 import groovy.text.StreamingTemplateEngine
 import groovy.util.logging.Slf4j
@@ -161,30 +162,8 @@ class K8SGenerator implements Generator {
 	
 	
 	protected static byte[] processTemplate(ResourceLoader loader, String template, Map bindings) {
-		
+		return TemplateHelper.processTemplate(loader, TEMPLATE_PREFIX + template, bindings)				
 		log.info("Processando template: ${template}")
-		
-		Reader r= locateTemplate(loader, template);
-		try {
-			def tpl = new StreamingTemplateEngine().createTemplate(r);
-			
-			StringWriter sw = new StringWriter()
-			tpl.make(bindings).writeTo(sw)
-			return sw.toString().getBytes("UTF-8");
-		}
-		finally {
-			r.close();
-		}
-		
 	}
 	
-	protected static Reader locateTemplate(ResourceLoader loader, String tpl) {
-				
-		InputStream is = loader.getResourceAsStream(TEMPLATE_PREFIX + tpl)
-		if ( is == null ) {
-			throw new IllegalArgumentException("Template não encontrado: ${tpl}")
-		}
-		return is.newReader()
-		
-	}
 }
