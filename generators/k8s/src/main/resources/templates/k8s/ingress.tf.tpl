@@ -16,6 +16,17 @@ variable "ingress_host" {
     default = "${endpoint.name}"
 }
 
+<% if ( config?.security?.enabled?: false ) { %>
+<% def security_provider = config?.security?.provider?: 'keycloak' %>
+variable "keycloak_host" {
+	type = string
+	description = "Hostname a ser utilizado para o keycloak"
+	default = "${endpoint.name}"
+}
+
+<% } %>
+	
+
 locals {
     iname = var.ingress_name == "" ? join("-",["ingress",sha1(uuid())]) : var.ingress_name
 }
@@ -43,8 +54,26 @@ resource "kubernetes_ingress" "ingress" {
                     path = "${route.path}"
                 }
 <% } %>
-            }
+            }						
         }
+		
+<% if ( config?.security?.enabled?: false ) { %>
+<% def security_provider = config?.security?.provider?: 'keycloak' %>
+		rule {
+			host = var.keycloak_host
+			http {
+				path {
+				    backend {
+					    service_name = "keycloak"
+					    service_port = 8080
+				    }
+					
+					path = "/"
+			    }
+			}
+		}		
+<% } %>
+
 
 /*
     tls {

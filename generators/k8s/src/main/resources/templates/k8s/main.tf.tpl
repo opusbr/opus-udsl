@@ -14,6 +14,11 @@ provider "kubernetes" {}
 <% env.endpoints.each { ep -> %>
 module "ingress_${tf.moduleName(ep.name)}" {
  	source = "./ingress/${ep.name}"
+	
+<% if ( config?.security?.enabled?: false ) { %>
+	keycloak_host = var.keycloak_host
+<% } %>
+	 
 } 
   
 <% } %>
@@ -79,6 +84,15 @@ variable "rabbitmq_management_password" {
 	default = "admin"
 }
 
+<% } %>
+
+<% if ( config?.security?.enabled?: false ) { %>
+variable "keycloak_host" {
+	type = string
+	description = "Hostname para acesso ao keycloak"
+	default = "keycloak.127.0.0.1.xip.io"
+}
+	
 <% } %>
 
 
