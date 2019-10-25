@@ -32,7 +32,7 @@ Environment("gcsf")  {
 
 	Deployment ('SvcAuditoria') { 
 		Image( name: IMAGE_APP ) // version aqui viria de um parâmetro passado no momento da geração 
-		MessageChannel( name: "FilaAuditoria", role: "Consumer" )
+		MessageChannel( name: FILA_AUDITORIA, role: "Consumer" )
 	} 
 
 	Endpoint( name: "mydb", target: "sqs.example.com", port: 3306, proto: "tcp", authenticated: true) 

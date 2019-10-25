@@ -38,9 +38,9 @@ class CmdGenerate {
 			help="Arquivo ou diretório de entrada. Caso seja um diretório, todos os arquivos com extensão .udsl serão processados")
 		File inputFileOrDir,
 		@ShellOption(
-			value= ["-s","--specFile"],
-			help="Arquivo contendo parâmetros para geração do código")
-		File specFile,
+			value= ["-s","--spec"],
+			help="Arquivo ou diretório contendo parâmetros para geração do código")
+		File specFileOrDir,
 		@ShellOption(
 			value= ["-o","--outputDir"],
 			help="Diretório onde os artefatos serão criados. O diretório será criado caso não exista")
@@ -56,9 +56,9 @@ class CmdGenerate {
 		log.info "Diretório de saída informado: ${outputDir}"
 		
 		// Processa arquivo de configuração passado
-		log.info "Processando arquivo de parametrização: ${specFile}"
-		def script = new GroovyShell().parse(specFile)		
-		def config = new ConfigSlurper(environment).parse(script)
+		log.info "Processando arquivo de parametrização: ${specFileOrDir}"
+		def config = createConfig(environment,specFileOrDir)
+		
 		
 		if ( !config["generator"]) {
 			throw new IllegalArgumentException("Arquivo de configuração não possui a chave 'generator'. Verifique o arquivo de configuração")
@@ -75,10 +75,6 @@ class CmdGenerate {
 			throw new IllegalArgumentException("Nenhum modelo encontrado. Verifique se o caminho informado é válido e contem arquivos com a extensão .udsl")
 		}
 		
-		// Valida a especificação
-		if ( !specFile.isFile()) {
-			throw new IllegalArgumentException("Arquivo de parametrização inválido: ${specFile}")
-		}
 		
 		// Gera modelos
 		def environments = []
@@ -91,6 +87,42 @@ class CmdGenerate {
 		
 		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
 		gen.generate(environments, config, outputDir, resourceLoader)
+	}
+	
+	protected ConfigObject createConfig(String environment, File configFileOrDir ) {
+		
+		def configs = [];
+		
+		if ( configFileOrDir.isFile()) {
+			configs << configFileOrDir;
+		}
+		else if (configFileOrDir.isDirectory()){
+			
+			configFileOrDir.eachFileMatch( ~/.*.config/) { file ->
+				configs << file
+			}			
+		}
+		
+		ConfigObject mergedConfig = null; 
+		
+		// Garante ordem consistente de merge...
+		configs = configs.sort { File a,File b -> a.name <=> b.name } 
+		
+		configs.each { File configFile ->
+			
+			log.info("[I113] Processando arquivo de configuração: ${configFile}")
+			def partialConfig = new ConfigSlurper(environment).parse(configFile.toURI().toURL())
+			
+			if ( mergedConfig == null ) {
+				mergedConfig = partialConfig;
+			}
+			else {
+				mergedConfig.merge(partialConfig)
+			}
+			
+		}
+
+		return mergedConfig;	
 	}
 	
 	/**

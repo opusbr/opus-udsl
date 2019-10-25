@@ -27,5 +27,6 @@ class MessageChannelSpec {
 	 * 
 	 */
 	String mode = "p2p"; 
+	
 
 }
