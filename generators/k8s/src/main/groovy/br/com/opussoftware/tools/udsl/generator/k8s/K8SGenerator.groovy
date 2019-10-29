@@ -20,7 +20,7 @@ class K8SGenerator implements Generator {
 
 	@Override
 	public String getDescription() {
-		return "Gerador de código Terraform para provisionamento de ambiente de microserviços";
+		return "Gerador de código Terraform para provisionamento de ambiente de microserviços em cluster Kubernetes";
 	}
 
 	@Override

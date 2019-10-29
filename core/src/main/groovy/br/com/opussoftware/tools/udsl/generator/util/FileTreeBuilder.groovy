@@ -1,5 +1,7 @@
 package br.com.opussoftware.tools.udsl.generator.util
 
+import br.com.opussoftware.tools.udsl.generator.ResourceLoader
+
 /**
  * Versão do FilteTreeBuilder padrão do Groovy que suporta sobrescrever arquivos existentes
  * @author Philippe
@@ -7,9 +9,12 @@ package br.com.opussoftware.tools.udsl.generator.util
  */
 class FileTreeBuilder extends groovy.util.FileTreeBuilder {
 	
+	private ResourceLoader _resourceLoader
+	
 	FileTreeBuilder(File baseDir) {
 		super(baseDir)
 	}
+	
 	
 	File file(String name, boolean overwrite, content) {
 
@@ -32,4 +37,7 @@ class FileTreeBuilder extends groovy.util.FileTreeBuilder {
 		file(name,content)
 
 	}
+
+	
+	
 }

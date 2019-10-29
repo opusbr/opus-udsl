@@ -87,6 +87,9 @@ class CmdGenerate {
 		
 		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
 		gen.generate(environments, config, outputDir, resourceLoader)
+		
+		log.info "Geração finalizada com sucesso"
+		
 	}
 	
 	protected ConfigObject createConfig(String environment, File configFileOrDir ) {

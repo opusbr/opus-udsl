@@ -114,6 +114,11 @@
 				<artifactId>opus-udsl-generator-kubernetes</artifactId>
 				<scope>runtime</scope>
 			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>opus-udsl-generator-ec2</artifactId>
+				<scope>runtime</scope>
+			</dependency>
 		
 
 	</dependencies>

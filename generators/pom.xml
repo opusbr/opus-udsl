@@ -21,12 +21,18 @@
 				<artifactId>opus-udsl-generator-kubernetes</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>opus-udsl-generator-ec2</artifactId>
+				<version>${project.version}</version>
+			</dependency>			
 		</dependencies>
 	</dependencyManagement>
 
 
 	<modules>
 		<module>k8s</module>
+		<module>ec2</module>
 	</modules>
 
 
