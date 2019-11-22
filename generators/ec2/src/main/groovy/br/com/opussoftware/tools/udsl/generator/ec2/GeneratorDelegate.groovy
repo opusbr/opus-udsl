@@ -129,6 +129,9 @@ class GeneratorDelegate {
 			if ( self.args[name] != null ) {
 				return self.args[name]
 			}
+			else if ( name == "args") {
+				return args
+			}
 			else {
 				throw new IllegalArgumentException("[E133] Uknown property: ${name}")
 			}

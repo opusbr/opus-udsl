@@ -1,6 +1,9 @@
 package br.com.opussoftware.tools.udsl.generator
 
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.Path
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,8 +96,9 @@ public class OpusUdslGeneratorApplicationTests {
 	@Test
 	public void testGenerateEC2() {
 		
-		def tempDir = Files.createTempDirectory("junit")
-		def modelFile = new File(this.getClass().getResource("/sample1.udsl").toURI())
+		
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/ec2-generated"));
+		def modelFile = new File(this.getClass().getResource("/sample1-ec2.udsl").toURI())
 		def configFile = new File(this.getClass().getResource("/sample1-ec2.config").toURI())
 		
 		def result = shell.evaluate(new Input() {
