@@ -5,3 +5,8 @@
 #
 # Template: deployment/variables.tf.tpl
 #
+
+variable "vpc_id" {
+	type = string
+	description = "VPC id where we'll create the RabbitMQ instance"
+}

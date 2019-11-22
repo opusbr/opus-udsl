@@ -53,7 +53,7 @@ args.envSpec.each { env ->
 				env: env
 			])
 
-		file(name:"main.tf",template:"main.tf.tpl",overwrite: true, 
+		file(name:"main.gen.tf",template:"main.tf.tpl",overwrite: true, 
 			bindings: [			
 				env: env 
 			])
@@ -61,7 +61,7 @@ args.envSpec.each { env ->
 		// Configurações da VPC que irá abrigar a aplicação
 		dir("network") {
 			["main":true,"outputs":true,"variables":true,"custom":false].each { tpl,overwrite ->
-				file(name: "${tpl}.tf", template:"network/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
+				file(name: "${tpl}${overwrite?'.gen.tf':'.tf'}", template:"network/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
 					env: env,
 					endpoints: env.endpoints
 				])
@@ -74,7 +74,7 @@ args.envSpec.each { env ->
 		dir("ingress") {
 			
 			["main":true,"outputs":true,"variables":true,"custom":false].each { tpl,overwrite ->
-				file(name: "${tpl}.tf", template:"ingress/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
+				file(name: "${tpl}${overwrite?'.gen.tf':'.tf'}", template:"ingress/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
 					env: env,
 					endpoints: env.endpoints
 				])
@@ -91,7 +91,7 @@ args.envSpec.each { env ->
 				
 				["main":true,"outputs":true,"variables":true,"custom":false].each { tpl, overwrite ->
 					
-					file(name: "${tpl}.tf", template:"deployment/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
+					file(name: "${tpl}${overwrite?'.gen.tf':'.tf'}", template:"deployment/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
 						env: env,
 						deployment: deployment
 					])	
@@ -109,7 +109,7 @@ args.envSpec.each { env ->
 				dir( args.config.messaging.provider ) {
 					
 					["main":true,"outputs":true,"variables":true,"custom":false, "channels": true].each { tpl, overwrite ->
-						file(name: "${tpl}.tf", template:"messaging/${args.config.messaging.provider}/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
+						file(name: "${tpl}${overwrite?'.gen.tf':'.tf'}", template:"messaging/${args.config.messaging.provider}/${tpl}.tf.tpl", overwrite: overwrite,bindings: [
 							env: env
 						])
 					}

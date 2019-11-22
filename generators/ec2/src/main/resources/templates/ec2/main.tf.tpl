@@ -6,17 +6,23 @@
 <%
 def dollar = '$'
 %>
- 
+
+locals {
+	vpc_id = module.network.vpc_id
+}
+
 
 //================================================================== VPCs
 module "network" {
 	source = "./network"
 }
 
+
  
 //================================================================== Ingress
 module "ingress" {
     source = "./ingress"
+	vpc_id = local.vpc_id
 	
 <% if ( config?.security?.enabled?: false ) { %>
     keycloak_host = var.keycloak_host
@@ -30,6 +36,7 @@ module "ingress" {
 <% env.deployments.each { dep -> %>
 module "${tf.moduleName(dep.name)}" {
   source = "./${dep.name}"
+  vpc_id = local.vpc_id
 }
 <% } %>
 
@@ -75,6 +82,7 @@ variable "keycloak_host" {
 
 module "messaging" {
 	source = "./messaging/${messaging_provider}"
+	vpc_id = local.vpc_id	
 
 <% if ( "rabbitmq" == messaging_provider ) { %>
 	rabbitmq_management_endpoint = var.management_endpoint
