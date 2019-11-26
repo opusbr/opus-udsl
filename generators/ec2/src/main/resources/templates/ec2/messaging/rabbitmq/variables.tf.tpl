@@ -28,6 +28,11 @@ variable "vpc_id" {
 	description = "VPC id where we'll create the RabbitMQ instance"
 }
 
+variable "services_subnet_id" {
+	type = string
+	description = "VPC Subnet where we'll create the RabbitMQ instance"
+}
+
 variable "rabbitmq_vhost" {
 	 type = string
 	 description = "Nome do VHost a ser utilizado com o RabbitMQ"

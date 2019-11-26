@@ -42,15 +42,11 @@ data "aws_availability_zones" "available" {
 # RabbitMQ launch template
 #
 resource "aws_launch_template" "tpl" {
+  description = "RabbitMQ Launch Template"
+  
   name_prefix   = "rabbitmq_ltpl"
   image_id      =  data.aws_ami_ids.rabbitmq.ids[0]
-  instance_type = var.rabbitmq_instance_type
-  description = "RabbitMQ Launch Template"
-  vpc_security_group_ids = data.aws_security_groups.rabbitmq_security_group.ids
-  
-  placement {
-	  availability_zone = data.aws_availability_zones.available.names[0]
-  }
+  instance_type = var.rabbitmq_instance_type  
 }
 
 
@@ -59,6 +55,8 @@ resource "aws_autoscaling_group" "rabbitmq" {
   desired_capacity   = var.rabbitmq_autoscale_desired_capacity
   max_size           = var.rabbitmq_autoscale_max_size
   min_size           = var.rabbitmq_autoscale_min_size
+  
+  vpc_zone_identifier = [var.services_subnet_id]
 
   launch_template {
     id      = aws_launch_template.tpl.id

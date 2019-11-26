@@ -15,3 +15,14 @@ output "vpc_arn" {
 	value = aws_vpc.main.arn
 	description = "Generated VPC ARN"
 }
+
+output "services_subnet_id" {
+	value = aws_subnet.services.id
+	description = "Generated VPC Subnet for Services"
+}
+
+output "services_subnet_arn" {
+	value = aws_subnet.services.id
+	description = "Generated VPC Subnet for Services"
+}
+

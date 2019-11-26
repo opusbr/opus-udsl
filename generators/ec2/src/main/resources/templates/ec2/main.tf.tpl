@@ -9,6 +9,7 @@ def dollar = '$'
 
 locals {
 	vpc_id = module.network.vpc_id
+	services_subnet_id = module.network.services_subnet_id
 }
 
 
@@ -37,6 +38,7 @@ module "ingress" {
 module "${tf.moduleName(dep.name)}" {
   source = "./${dep.name}"
   vpc_id = local.vpc_id
+  services_subnet_id = local.services_subnet_id
 }
 <% } %>
 
@@ -82,7 +84,8 @@ variable "keycloak_host" {
 
 module "messaging" {
 	source = "./messaging/${messaging_provider}"
-	vpc_id = local.vpc_id	
+	vpc_id = local.vpc_id
+	services_subnet_id = local.services_subnet_id	
 
 <% if ( "rabbitmq" == messaging_provider ) { %>
 	rabbitmq_management_endpoint = var.management_endpoint
