@@ -39,6 +39,8 @@ module "${tf.moduleName(dep.name)}" {
   source = "./${dep.name}"
   vpc_id = local.vpc_id
   services_subnet_id = local.services_subnet_id
+  ami_owner_ids = ["${ec2.amiName(config,dep.name).owner}"]
+  ami_name = "${ec2.amiName(config,dep.name).name}"
 }
 <% } %>
 

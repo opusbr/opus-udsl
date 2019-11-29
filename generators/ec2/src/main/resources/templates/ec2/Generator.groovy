@@ -6,13 +6,27 @@ import br.com.opussoftware.tools.udsl.generator.ec2.TFHelper
  * 
  */
 
+// Helpers específicos do EC2
+
+def DEFAULT_AMI = [
+	owner : "099720109477",
+	name : "ubuntu/images/hvm-ssd/*bionic*-amd64-server*"	
+]
+
+def ec2Helpers = [
+	// Retorna nome da imagem AMI a ser utilizada para um deployment
+	amiName: { config, name -> config.amiMap[name]?:config.defaultAmi?:DEFAULT_AMI }
+]
+
+
 // Global Bindings
 // Objetos que serão injetados na execução de um script sem que seja necessário 
 // declará-los
 globalBindings (
 	sutil: StringEscapeUtils,
 	tf: TFHelper,
-	config: args.config
+	config: args.config,
+	ec2: ec2Helpers
 )
 
 // Named Bindings. 
@@ -32,6 +46,7 @@ def checkMessagingProvider = { p ->
 		throw new IllegalArgumentException("Messaging provider not supported: ${p}")
 	}
 }
+
 
 // "args" possui os argumentos passados para o gerador:
 //  envSpec: Lista de environments
