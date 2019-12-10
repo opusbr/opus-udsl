@@ -1,0 +1,32 @@
+Environment("emed") {
+	
+	Endpoint("www.emed.com.br") {
+		Route(path:"/",deployment:"FrontEnd")
+	}
+	
+	Endpoint("api.emed.com.br") {
+		Route(path:"/",deployment:"Backend")
+	}
+
+	
+	Deployment("FrontEnd") {
+		Image("FrontEnd")
+	}
+	
+	Deployment("Backend") {
+		Image("Backend")
+		Endpoint("redis")
+		Endpoint("rds")		
+		Endpoint("Integration")	
+	}
+
+	Deployment("Integration") {
+		Image("Integration")
+		Endpoint("integration-db")	
+	}
+	
+	Endpoint( name: "redis", target: "redis.example.com", port: 9601, proto: "tcp", authenticated: true) 
+	Endpoint( name: "rds", target: "redis.example.com", port: 9601, proto: "tcp", authenticated: true)
+	Endpoint( name: "integration-db", target: "db.example.com", port: 9601, proto: "tcp", authenticated: true)
+	
+}

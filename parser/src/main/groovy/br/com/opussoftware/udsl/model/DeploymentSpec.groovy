@@ -15,6 +15,12 @@ class DeploymentSpec {
 		images.add(image)		
 	}
 	
+	public Image(String name) {
+		def image = new ImageSpec(name:name)
+		images.add(image)
+	}
+
+	
 	public MessageChannel(Map params) {
 		def channel = new MessageChannelSpec(params)
 		channels.add(channel)
