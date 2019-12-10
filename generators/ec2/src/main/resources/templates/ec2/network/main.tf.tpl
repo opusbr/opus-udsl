@@ -21,3 +21,9 @@ resource "aws_subnet" "services" {
 	cidr_block = cidrsubnet(aws_vpc.main.cidr_block,8,1)
 	vpc_id = aws_vpc.main.id
 }
+
+# Ingress Subnet. Used to attach LBs
+resource "aws_subnet" "ingress" {
+	cidr_block = cidrsubnet(aws_vpc.main.cidr_block,8,2)
+	vpc_id = aws_vpc.main.id
+}

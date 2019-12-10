@@ -10,6 +10,7 @@ def dollar = '$'
 locals {
 	vpc_id = module.network.vpc_id
 	services_subnet_id = module.network.services_subnet_id
+	ingress_subnet_id = module.network.ingress_subnet_id
 }
 
 
@@ -24,23 +25,30 @@ module "network" {
 module "ingress" {
     source = "./ingress"
 	vpc_id = local.vpc_id
-	
-<% if ( config?.security?.enabled?: false ) { %>
-    keycloak_host = var.keycloak_host
-<% } %>
-	 
+	subnet_id = local.ingress_subnet_id
 }
   
  
 //================================================================== Deployments
  
-<% env.deployments.each { dep -> %>
-module "${tf.moduleName(dep.name)}" {
+<% 
+env.deployments.each { dep ->
+  def targetGroups = ec2.targetGroupsForDeployment(env,dep)
+  def sep = ""
+  def moduleName = ec2.moduleName(dep.name) 
+%>
+module "${moduleName}" {
   source = "./${dep.name}"
   vpc_id = local.vpc_id
   services_subnet_id = local.services_subnet_id
   ami_owner_ids = ["${ec2.amiName(config,dep.name).owner}"]
   ami_name = "${ec2.amiName(config,dep.name).name}"
+  lb_target_group_arns = [
+    <% targetGroups.each { tg -> %>
+		${sep}module.ingress.${tg}_arn
+		<% sep = "," %>
+	<%}%>
+  ]
 }
 <% } %>
 

@@ -57,7 +57,9 @@ resource "aws_launch_template" "tpl" {
 }
 
 
-
+##
+## Autoscaling Group for this deployment
+##
 resource "aws_autoscaling_group" "deployment" {
   desired_capacity   = var.autoscale_desired_capacity <= 0 ? 1: var.autoscale_desired_capacity 
   max_size           = var.autoscale_max_size <= 0 ? 1: var.autoscale_max_size
@@ -69,4 +71,15 @@ resource "aws_autoscaling_group" "deployment" {
 	id      = aws_launch_template.tpl.id
 	version = var.launch_template_version
   }
+}
+
+##
+## Attachments
+##
+resource "aws_autoscaling_attachment" "autoscale_attachment" {
+  for_each = toset(var.lb_target_group_arns)
+
+  autoscaling_group_name = aws_autoscaling_group.deployment.id
+  alb_target_group_arn = each.key
+
 }

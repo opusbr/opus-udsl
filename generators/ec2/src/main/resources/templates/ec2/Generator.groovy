@@ -15,7 +15,49 @@ def DEFAULT_AMI = [
 
 def ec2Helpers = [
 	// Retorna nome da imagem AMI a ser utilizada para um deployment
-	amiName: { config, name -> config.amiMap[name]?:config.defaultAmi?:DEFAULT_AMI }
+	amiName: { config, name -> config.amiMap[name]?:config.defaultAmi?:DEFAULT_AMI },
+	
+	// Retorna lista de "target groups" associados a um deployment
+	targetGroupsForDeployment : { env, deployment -> 		
+		def targets = new HashSet();		
+		env.endpoints.each { ep ->  			
+			ep.routes.each { route ->				
+				if ( route.deployment == deployment.name ) {
+					def epSuffix = TFHelper.moduleName(ep.name)
+					def routeName = TFHelper.moduleName(route.deployment)					
+					targets.add( "tg_${routeName}")					
+				}				
+			}			
+		}
+		
+		return targets
+	},
+	
+	targetGroupsForEnvironment: { env ->
+	  def targets = new HashSet()
+	  env.endpoints.each { ep ->
+		  ep.routes.each { route ->
+		     def routeName = TFHelper.moduleName(route.deployment)
+		     targets.add( "tg_${routeName}")
+		  }
+	  }	  
+	  return targets
+	},
+	
+	moduleName: { str -> TFHelper.moduleName(str) },
+	
+	awsName: { name ->
+		return name.collect({
+			if ( it =~ /[0-9A-Za-z]/ || it == '-') {
+				return it
+			}
+			else {
+				return '-'
+			}
+		}).join()
+
+		
+	}
 ]
 
 
