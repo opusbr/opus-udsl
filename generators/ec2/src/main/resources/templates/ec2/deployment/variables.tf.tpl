@@ -17,7 +17,7 @@ variable "vpc_id" {
 
 variable "services_subnet_id" {
 	type = string
-	description = "VPC Subnet where we'll create this deployment"
+	description = "VPC Subnet Ids where we'll create this deployment"
 }
 
 variable "ami_name" {

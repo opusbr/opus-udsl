@@ -25,7 +25,7 @@ module "network" {
 module "ingress" {
     source = "./ingress"
 	vpc_id = local.vpc_id
-	subnet_id = local.ingress_subnet_id
+	subnet_ids = local.ingress_subnet_id
 }
   
  

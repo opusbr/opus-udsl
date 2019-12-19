@@ -12,9 +12,9 @@ variable "vpc_id" {
 }
 
 
-variable "subnet_id" {
-	type = string
-	description = "VPC subnet to attach to the ingress LB"
+variable "subnet_ids" {
+	type = list
+	description = "VPC subnet IDs to attach to the ingress LB"
 }
 
 

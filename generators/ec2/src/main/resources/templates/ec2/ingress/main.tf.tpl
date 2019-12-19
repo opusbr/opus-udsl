@@ -34,13 +34,37 @@ resource "aws_security_group" "public_tls" {
 #
 # S3 Bucket for logs
 #
+data "aws_elb_service_account" "main" {}
+
 resource "aws_s3_bucket" "ingress_logs" {
-	acl = "private"
+	acl = "log-delivery-write"
+	bucket = "${ec2.amiName(env.name)}-access-logs"
 
 	tags = {
 		Environment = "${env.name}"
 		Name = "ingress_logs"
-	}	
+	}
+	
+	policy = <<POLICY
+	{
+	  "Id": "Policy",
+	  "Version": "2012-10-17",
+	  "Statement": [
+		{
+		  "Action": [
+			"s3:PutObject"
+		  ],
+		  "Effect": "Allow",
+		  "Resource": "arn:aws:s3:::${ec2.amiName(env.name)}-access-logs/*",
+		  "Principal": {
+			"AWS": [
+			  data.aws_elb_service_account.main.arn
+			]
+		  }
+		}
+	  ]
+	}
+POLICY
 }
 
 
@@ -95,13 +119,13 @@ resource "aws_lb" "ingress_${epSuffix}" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.public_tls.id]
-  subnets            = [var.subnet_id]
+  subnets            = var.subnet_ids
 
   enable_deletion_protection = true
 
   access_logs {
 	bucket  = aws_s3_bucket.ingress_logs.bucket
-	prefix  = "${env.name}/logs/${epSuffix}"
+	prefix  = "logs/${epSuffix}"
 	enabled = true
   }
 

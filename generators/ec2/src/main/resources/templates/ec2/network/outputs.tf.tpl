@@ -22,18 +22,18 @@ output "services_subnet_id" {
 }
 
 output "services_subnet_arn" {
-	value = aws_subnet.services.id
+	value = aws_subnet.services.arn
 	description = "Generated VPC Subnet ARN for Services"
 }
 
 
 output "ingress_subnet_id" {
-	value = aws_subnet.ingress.id
+	value = aws_subnet.ingress[*].id
 	description = "Generated Ingress VPC Subnet Id"
 }
 
 output "ingress_subnet_arn" {
-	value = aws_subnet.services.id
+	value = aws_subnet.ingress[*].arn
 	description = "Generated Ingress VPC Subnect ARN"
 }
 
