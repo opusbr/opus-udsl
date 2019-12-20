@@ -41,6 +41,7 @@ data "aws_elb_service_account" "main" {}
 resource "aws_s3_bucket" "ingress_logs" {
 	acl = "log-delivery-write"
 	bucket = "${ec2.awsName(env.name)}-access-logs"
+	force_destroy = true
 
 	tags = {
 		Environment = "${env.name}"
@@ -130,7 +131,7 @@ resource "aws_lb" "ingress_${epSuffix}" {
   security_groups    = [aws_security_group.public_tls.id]
   subnets            = var.subnet_ids
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   access_logs {
 	bucket  = aws_s3_bucket.ingress_logs.bucket
