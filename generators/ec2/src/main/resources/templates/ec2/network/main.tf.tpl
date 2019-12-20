@@ -44,4 +44,5 @@ resource "aws_subnet" "ingress" {
 	count = length(data.aws_availability_zones.available.names)
 	cidr_block = cidrsubnet(aws_vpc.main.cidr_block,8, 1 + count.index)
 	vpc_id = aws_vpc.main.id
+	availability_zone = data.aws_availability_zones.available.names[count.index]
 }

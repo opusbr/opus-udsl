@@ -76,10 +76,15 @@ resource "aws_autoscaling_group" "deployment" {
 ##
 ## Attachments
 ##
-resource "aws_autoscaling_attachment" "autoscale_attachment" {
-  for_each = toset(var.lb_target_group_arns)
-
+<%
+def attachments = ec2.targetGroupsForDeployment(env,deployment)
+for( int i = 0 ; i < attachments.size() ; i++ ) {
+%>
+resource "aws_autoscaling_attachment" "autoscale_attachment_${i}" {
   autoscaling_group_name = aws_autoscaling_group.deployment.id
-  alb_target_group_arn = each.key
-
+  alb_target_group_arn = var.lb_target_group_arns[${i}]
 }
+
+<%
+}
+%>

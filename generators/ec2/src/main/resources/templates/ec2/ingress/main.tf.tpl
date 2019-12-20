@@ -36,9 +36,11 @@ resource "aws_security_group" "public_tls" {
 #
 data "aws_elb_service_account" "main" {}
 
+
+
 resource "aws_s3_bucket" "ingress_logs" {
 	acl = "log-delivery-write"
-	bucket = "${ec2.amiName(env.name)}-access-logs"
+	bucket = "${ec2.awsName(env.name)}-access-logs"
 
 	tags = {
 		Environment = "${env.name}"
@@ -46,24 +48,24 @@ resource "aws_s3_bucket" "ingress_logs" {
 	}
 	
 	policy = <<POLICY
+{
+  "Id": "Policy",
+  "Version": "2012-10-17",
+  "Statement": [
 	{
-	  "Id": "Policy",
-	  "Version": "2012-10-17",
-	  "Statement": [
-		{
-		  "Action": [
-			"s3:PutObject"
-		  ],
-		  "Effect": "Allow",
-		  "Resource": "arn:aws:s3:::${ec2.amiName(env.name)}-access-logs/*",
-		  "Principal": {
-			"AWS": [
-			  data.aws_elb_service_account.main.arn
-			]
-		  }
-		}
-	  ]
+	  "Action": [
+		"s3:PutObject"
+	  ],
+	  "Effect": "Allow",
+	  "Resource": "arn:aws:s3:::${ec2.awsName(env.name)}-access-logs/*",
+	  "Principal": {
+		"AWS": [
+		  "$dollar{data.aws_elb_service_account.main.arn}"
+		]
+	  }
 	}
+  ]
+}
 POLICY
 }
 
@@ -71,9 +73,10 @@ POLICY
 #
 # Key pair to use with a the self-signed cert
 #
+# Note: ELB Listeners do not support ECDSA
 resource "tls_private_key" "pk" {
-	algorithm   = "ECDSA"
-	ecdsa_curve = "P384"
+	algorithm   = "RSA"
+	rsa_bits = 2048
 }
 
 <%
@@ -85,7 +88,7 @@ env.endpoints.each { ep ->
 # Self-signed certificate for  ${ep.name} endpoint
 #
 resource "tls_self_signed_cert" "cert_${epSuffix}" {
-  key_algorithm   = "ECDSA"
+  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.pk.private_key_pem
 
   subject {
@@ -108,6 +111,12 @@ resource "tls_self_signed_cert" "cert_${epSuffix}" {
 resource "aws_acm_certificate" "cert_${epSuffix}" {
 	private_key      = tls_private_key.pk.private_key_pem
 	certificate_body = tls_self_signed_cert.cert_${epSuffix}.cert_pem
+	
+	tags = {
+		Environment = "${env.name}"
+		Name = "${ep.name}"
+	}
+	 
 }
 
 
@@ -133,6 +142,10 @@ resource "aws_lb" "ingress_${epSuffix}" {
    Environment = "${env.name}"
    Endpoint = "${ep.name}"
   }
+  
+  depends_on = [
+	  aws_acm_certificate.cert_${epSuffix}
+  ]
 }
 
 #
@@ -155,6 +168,8 @@ resource "aws_lb_listener" "listener_${epSuffix}" {
 		}
 	}	
 }
+
+  
 
 #
 # Ingress Routes for endpoint ${ep.name}

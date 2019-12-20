@@ -65,6 +65,7 @@ variable "launch_template_version" {
 variable "lb_target_group_arns" {
 	type = list(string)
 	description = "ARNs of the LB target groups to attach the autoscaling group of this deployment to"
+	default = []
 }
 
 
