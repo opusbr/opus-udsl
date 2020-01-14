@@ -23,8 +23,10 @@ args.envSpec.each { env ->
 		dir("ingress") {
 			env.endpoints.each { ep ->
 				dir(ep.name) {
-					file("main.tf",true, K8SGeneratorV1.processTemplate(loader,"ingress.tf.tpl",baseBindings + [endpoint:ep]))
-					generatedFiles++
+					file(name:"main.tf",template:"ingress.tf.tpl",overwrite:true, 
+						bindings:[
+							env:env
+							endpoint:ep]))
 				}
 			}
 		}
@@ -34,10 +36,11 @@ args.envSpec.each { env ->
 			env.externalEndpoints.each { ep ->
 				if ( ep.routes.size() == 0 ) {
 					dir( ep.name ) {
-						file("main.tf",true,
-						  K8SGeneratorV1.processTemplate(
-							  loader,"external-endpoint.tf.tpl",baseBindings + [endpoint:ep]))
-						generatedFiles++
+						file(name:"main.tf",overwrite:true,
+						  template: "external-endpoint.tf.tpl",
+						  bindings: [
+							  env:env
+							  endpoint:ep]))
 					}
 				}
 			}
@@ -49,44 +52,38 @@ args.envSpec.each { env ->
 				
 				// Determina o provedor de mensageria. Por default será o RabbitMQ
 				def messagingProvider = config?.messaging?.provider?:"rabbitmq"
-				log.info("[I100] messagingProvider=${messagingProvider}")
 				
 				dir(messagingProvider) {
 					
 					// Arquivo principal
-					file("main.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/main.tf.tpl",baseBindings))
+					file(name:"main.tf",overwrite:true,template:"messaging/${messagingProvider}/main.tf.tpl",bindings:[]))
 					
 					// Variáveis para customização
-					file("variables.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/variables.tf.tpl",baseBindings))
+					file(name:"variables.tf",overwrite:true,template:"messaging/${messagingProvider}/variables.tf.tpl",bindings:[]))
 					
 					// Variáveis de saída
-					file("output.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/outputs.tf.tpl",baseBindings))
+					file(name:"output.tf",overwrite:true,template:"messaging/${messagingProvider}/outputs.tf.tpl",bindings:[]))
 					
 					// Canais
-					file("channels.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/channels.tf.tpl",baseBindings))
-
+					file(name:"channels.tf",overwrite:true,template:"messaging/${messagingProvider}/channels.tf.tpl",bindings:[]))
 
 					// Customizações locais
-					file("custom.tf",false,K8SGeneratorV1.processTemplate(loader,"custom.tf.tpl",baseBindings))
-
-					generatedFiles++
+					file(name:"custom.tf",overwrite:false,template:"custom.tf.tpl",bindings:[]))
 				}
-				
-				//
 			}
 		}
 
 		// Para cada deployment crio um deployment em si e um
 		// serviço
 		env.deployments.each { deployment ->
-			dir(deployment.name) {
+			dir(deployment.name) {				
+				def deploymentBindings = [
+					env: env,
+					deployment:deployment
+				]
 										
-				file("deployment.tf",true, K8SGeneratorV1.processTemplate(loader,"deployment.tf.tpl",
-					baseBindings + [deployment: deployment]))
-				
-				file("service.tf",true, K8SGeneratorV1.processTemplate(loader,"service.tf.tpl",
-					baseBindings + [deployment: deployment]))
-
+				file(name:"deployment.tf",overwrite:true,template:"deployment.tf.tpl",bindings:deploymentBindings))				
+				file(name:"service.tf",overwrite:true,template:"service.tf.tpl",bindings:deploymentBindings))
 			}
 		}
 		
@@ -97,16 +94,16 @@ args.envSpec.each { env ->
 			dir('security') {
 				dir(securityProvider) {
 					// Arquivo principal
-					file("main.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/main.tf.tpl",baseBindings))
+					file(name:"main.tf",overwrite:true,template:"security/${securityProvider}/main.tf.tpl",bindings:[]))				
 					
 					// Variáveis para customização
-					file("variables.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/variables.tf.tpl",baseBindings))
+					file(name:"variables.tf",overwrite:true,template:"security/${securityProvider}/variables.tf.tpl",bindings:[]))				
 					
 					// Variáveis de saída
-					file("output.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/outputs.tf.tpl",baseBindings))
+					file(name:"output.tf",overwrite:true,template:"security/${securityProvider}/outputs.tf.tpl",bindings:[]))				
 
 					// Customizações locais
-					file("custom.tf",false,K8SGeneratorV1.processTemplate(loader,"custom.tf.tpl",baseBindings))
+					file(name:"custom.tf",overwrite:false,template:"custom.tf.tpl",bindings:[]))				
 				}
 			}
 		}
