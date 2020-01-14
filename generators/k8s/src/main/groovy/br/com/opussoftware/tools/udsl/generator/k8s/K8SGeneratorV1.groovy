@@ -9,7 +9,7 @@ import groovy.text.StreamingTemplateEngine
 import groovy.util.logging.Slf4j
 
 @Slf4j
-class K8SGenerator implements Generator {
+class K8SGeneratorV1 implements Generator {
 	
 	static String TEMPLATE_PREFIX = "/templates/k8s/"
 
@@ -58,7 +58,7 @@ class K8SGenerator implements Generator {
 			ftb.dir(env.name) { 
 				
 				// entry point do módulo
-				file("main.tf",true, K8SGenerator.processTemplate(loader, "main.tf.tpl",baseBindings))
+				file("main.tf",true, K8SGeneratorV1.processTemplate(loader, "main.tf.tpl",baseBindings))
 							generatedFiles++
 				
 				// Gera um módulo para cada ingress pendurado no environment
@@ -66,7 +66,7 @@ class K8SGenerator implements Generator {
 				dir("ingress") {
 					env.endpoints.each { ep ->
 						dir(ep.name) {
-							file("main.tf",true, K8SGenerator.processTemplate(loader,"ingress.tf.tpl",baseBindings + [endpoint:ep]))
+							file("main.tf",true, K8SGeneratorV1.processTemplate(loader,"ingress.tf.tpl",baseBindings + [endpoint:ep]))
 							generatedFiles++
 						}
 					}
@@ -78,7 +78,7 @@ class K8SGenerator implements Generator {
 						if ( ep.routes.size() == 0 ) {
 							dir( ep.name ) {
 								file("main.tf",true,
-								  K8SGenerator.processTemplate(
+								  K8SGeneratorV1.processTemplate(
 									  loader,"external-endpoint.tf.tpl",baseBindings + [endpoint:ep]))
 								generatedFiles++
 							}
@@ -97,20 +97,20 @@ class K8SGenerator implements Generator {
 						dir(messagingProvider) {
 							
 							// Arquivo principal
-							file("main.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/main.tf.tpl",baseBindings))
+							file("main.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/main.tf.tpl",baseBindings))
 							
 							// Variáveis para customização
-							file("variables.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/variables.tf.tpl",baseBindings))
+							file("variables.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/variables.tf.tpl",baseBindings))
 							
 							// Variáveis de saída
-							file("output.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/outputs.tf.tpl",baseBindings))
+							file("output.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/outputs.tf.tpl",baseBindings))
 							
 							// Canais
-							file("channels.tf",true,K8SGenerator.processTemplate(loader,"messaging/${messagingProvider}/channels.tf.tpl",baseBindings))
+							file("channels.tf",true,K8SGeneratorV1.processTemplate(loader,"messaging/${messagingProvider}/channels.tf.tpl",baseBindings))
 
 
 							// Customizações locais
-							file("custom.tf",false,K8SGenerator.processTemplate(loader,"custom.tf.tpl",baseBindings))
+							file("custom.tf",false,K8SGeneratorV1.processTemplate(loader,"custom.tf.tpl",baseBindings))
 
 							generatedFiles++
 						}
@@ -124,10 +124,10 @@ class K8SGenerator implements Generator {
 				env.deployments.each { deployment ->
 					dir(deployment.name) {
 												
-						file("deployment.tf",true, K8SGenerator.processTemplate(loader,"deployment.tf.tpl",
+						file("deployment.tf",true, K8SGeneratorV1.processTemplate(loader,"deployment.tf.tpl",
 							baseBindings + [deployment: deployment]))
 						
-						file("service.tf",true, K8SGenerator.processTemplate(loader,"service.tf.tpl",
+						file("service.tf",true, K8SGeneratorV1.processTemplate(loader,"service.tf.tpl",
 							baseBindings + [deployment: deployment]))
 
 					}
@@ -140,16 +140,16 @@ class K8SGenerator implements Generator {
 					dir('security') {
 						dir(securityProvider) {
 							// Arquivo principal
-							file("main.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/main.tf.tpl",baseBindings))
+							file("main.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/main.tf.tpl",baseBindings))
 							
 							// Variáveis para customização
-							file("variables.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/variables.tf.tpl",baseBindings))
+							file("variables.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/variables.tf.tpl",baseBindings))
 							
 							// Variáveis de saída
-							file("output.tf",true,K8SGenerator.processTemplate(loader,"security/${securityProvider}/outputs.tf.tpl",baseBindings))
+							file("output.tf",true,K8SGeneratorV1.processTemplate(loader,"security/${securityProvider}/outputs.tf.tpl",baseBindings))
 
 							// Customizações locais
-							file("custom.tf",false,K8SGenerator.processTemplate(loader,"custom.tf.tpl",baseBindings))
+							file("custom.tf",false,K8SGeneratorV1.processTemplate(loader,"custom.tf.tpl",baseBindings))
 						}
 					}
 				}
