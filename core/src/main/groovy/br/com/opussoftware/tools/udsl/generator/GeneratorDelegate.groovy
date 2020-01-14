@@ -1,4 +1,4 @@
-package br.com.opussoftware.tools.udsl.generator.ec2
+package br.com.opussoftware.tools.udsl.generator
 
 import br.com.opussoftware.tools.udsl.generator.ResourceLoader
 import br.com.opussoftware.tools.udsl.generator.util.FileTreeBuilder
