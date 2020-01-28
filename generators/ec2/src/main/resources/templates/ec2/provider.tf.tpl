@@ -25,8 +25,12 @@ variable "localstack_host" {
 	default = "localhost"
 }
 
+provider "tls" {
+	version = "~> 2.1"
+}
 
 provider "aws" {
+	version = "~> 2.45"
 	region                      = var.aws_region
 	s3_force_path_style         = var.aws_provider != "standard"? true : false
 	skip_credentials_validation = var.aws_provider != "standard"? true : false

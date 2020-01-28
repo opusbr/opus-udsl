@@ -1,0 +1,15 @@
+Environment("emed") {
+	
+	Endpoint("www.emed.com.br") {
+		Route(path:"/",deployment:"FrontEnd")
+	}
+		
+	Deployment("FrontEnd") {
+		Image("FrontEnd")
+		Endpoint("integration-db")	
+	}
+	
+	
+	Endpoint( name: "integration-db", target: "db.example.com", port: 9601, proto: "tcp", authenticated: true)
+	
+}

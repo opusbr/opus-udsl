@@ -6,9 +6,7 @@
 <%
 def dollar = '$'
 %> 
- 
-provider "kubernetes" {}
- 
+  
  
 //================================================================== Ingress
 <% env.endpoints.each { ep -> %>
@@ -63,40 +61,30 @@ variable "management_endpoint" {
 	default = ""
 }
 
-<%  if ( config.messaging.external ) { %>
-variable "message_broker_address" {
-	type = string
-	description = "Hostname do servidor de mensageria externo a ser utilizado"
-	default = "broker.example.com"
-}
-<% } %>
-
 <% if ( "rabbitmq" == messaging_provider ) { %>
-variable "rabbitmq_management_username" {
-	type = string
-	description = "Usuário administrativo para o RabbitMQ"
-	default = "admin"
-}
-
-variable "rabbitmq_management_password" {
-	type = string
-	description = "Senha do usuário administrativo do RabbitMQ"
-	default = "admin"
-}
-
-<% } %>
-
-<% if ( config?.security?.enabled?: false ) { %>
-variable "keycloak_host" {
-	type = string
-	description = "Hostname para acesso ao keycloak"
-	default = "keycloak.127.0.0.1.xip.io"
-}
+	variable "rabbitmq_management_username" {
+		type = string
+		description = "Usuário administrativo para o RabbitMQ"
+		default = "admin"
+	}
+	
+	variable "rabbitmq_management_password" {
+		type = string
+		description = "Senha do usuário administrativo do RabbitMQ"
+		default = "admin"
+	}
 	
 <% } %>
+	
 
-
-
+<%  if ( config.messaging.external ) { %>
+	variable "message_broker_address" {
+		type = string
+		description = "Hostname do servidor de mensageria externo a ser utilizado"
+		default = "broker.example.com"
+	}
+<% } %>
+	
 module "messaging" {
 	source = "./messaging/${messaging_provider}"
 <% if ( "rabbitmq" == messaging_provider ) { %>
@@ -113,7 +101,18 @@ module "messaging" {
 <% } /* if env.messageChannels.empty */ %>
 
 <% if ( config?.security?.enabled?: false ) { %>
-//================================================================== Messaging
+	
+<% if ( config?.security?.enabled?: false ) { %>
+//================================================================== Security
+	
+variable "keycloak_host" {
+	type = string
+	description = "Hostname para acesso ao keycloak"
+	default = "keycloak.127.0.0.1.xip.io"
+}
+			
+<% } %>
+		
 <% def security_provider = config?.security?.provider?: 'keycloak' %>
 
 module "security" {

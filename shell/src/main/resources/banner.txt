@@ -4,4 +4,5 @@
  | |_| | |_| |___) | |___  | |_| |  __/ | | |  __/ | | (_| | || (_) | |   
   \__,_|____/|____/|_____|  \____|\___|_| |_|\___|_|  \__,_|\__\___/|_|   
                                                                     
-Version: ${git.build.version}  Build Date: ${git.build.time}
+Version: ${application.version}  Build Date: ${application.title}
+

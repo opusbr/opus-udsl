@@ -16,14 +16,24 @@ args.envSpec.each { env ->
 	dir(env.name) {
 
 		// entry point do módulo
-		file(name: "main.tf",template: "main.tf.tpl", overwrite:true, bindings:[env:env]);
+		file(name: "main.gen.tf",template: "main.tf.tpl", overwrite:true, bindings:[env:env]);
+		
+		// providers
+		file(name: "provider.tf",template: "provider.tf.tpl", overwrite:false, bindings:[env:env]);
+
+		// tfvars
+		file(name: "terraform.tfvars",template: "terraform.tfvars.tpl", overwrite:false, bindings:[env:env]);
 
 		// Gera um módulo para cada ingress pendurado no environment
 		// Estes endpoint são os de entradas
 		dir("ingress") {
 			env.endpoints.each { ep ->
 				dir(ep.name) {
-					file(name:"main.tf",template:"ingress.tf.tpl",overwrite:true,
+					file(name:"main.gen.tf",template:"ingress.tf.tpl",overwrite:true,
+					bindings:[
+						env:env,
+						endpoint:ep])
+					file(name:"custom.tf",template:"custom.tf.tpl",overwrite:false,
 					bindings:[
 						env:env,
 						endpoint:ep])
@@ -36,11 +46,16 @@ args.envSpec.each { env ->
 			env.externalEndpoints.each { ep ->
 				if ( ep.routes.size() == 0 ) {
 					dir( ep.name ) {
-						file(name:"main.tf",overwrite:true,
+						file(name:"main.gen.tf",overwrite:true,
 						template: "external-endpoint.tf.tpl",
 						bindings: [
 							env:env,
 							endpoint:ep])
+						
+						file(name:"custom.tf",template:"custom.tf.tpl",overwrite:false,
+							bindings:[
+								env:env,
+								endpoint:ep])		
 					}
 				}
 			}
@@ -56,19 +71,19 @@ args.envSpec.each { env ->
 				dir(messagingProvider) {
 
 					// Arquivo principal
-					file(name:"main.tf",overwrite:true,template:"messaging/${messagingProvider}/main.tf.tpl",bindings:[])
+					file(name:"main.gen.tf",overwrite:true,template:"messaging/${messagingProvider}/main.tf.tpl",bindings:[])
 
 					// Variáveis para customização
-					file(name:"variables.tf",overwrite:true,template:"messaging/${messagingProvider}/variables.tf.tpl",bindings:[])
+					file(name:"variables.gen.tf",overwrite:true,template:"messaging/${messagingProvider}/variables.tf.tpl",bindings:[])
 
 					// Variáveis de saída
-					file(name:"output.tf",overwrite:true,template:"messaging/${messagingProvider}/outputs.tf.tpl",bindings:[])
+					file(name:"output.gen.tf",overwrite:true,template:"messaging/${messagingProvider}/outputs.tf.tpl",bindings:[])
 
 					// Canais
-					file(name:"channels.tf",overwrite:true,template:"messaging/${messagingProvider}/channels.tf.tpl",bindings:[env:env])
+					file(name:"channels.gen.tf",overwrite:true,template:"messaging/${messagingProvider}/channels.tf.tpl",bindings:[env:env])
 
 					// Customizações locais
-					file(name:"custom.tf",overwrite:false,template:"custom.tf.tpl",bindings:[])
+					file(name:"custom.gen.tf",overwrite:false,template:"custom.tf.tpl",bindings:[])
 				}
 			}
 		}
@@ -82,8 +97,12 @@ args.envSpec.each { env ->
 					deployment:deployment
 				]
 
-				file(name:"deployment.tf",overwrite:true,template:"deployment.tf.tpl",bindings:deploymentBindings)
-				file(name:"service.tf",overwrite:true,template:"service.tf.tpl",bindings:deploymentBindings)
+				file(name:"deployment.gen.tf",overwrite:true,template:"deployment.tf.tpl",bindings:deploymentBindings)
+				file(name:"service.gen.tf",overwrite:true,template:"service.tf.tpl",bindings:deploymentBindings)
+				
+				file(name:"custom.tf",template:"custom.tf.tpl",overwrite:false,
+					bindings:deploymentBindings)
+
 			}
 		}
 
@@ -94,13 +113,13 @@ args.envSpec.each { env ->
 			dir('security') {
 				dir(securityProvider) {
 					// Arquivo principal
-					file(name:"main.tf",overwrite:true,template:"security/${securityProvider}/main.tf.tpl",bindings:[])
+					file(name:"main.gen.tf",overwrite:true,template:"security/${securityProvider}/main.tf.tpl",bindings:[])
 
 					// Variáveis para customização
-					file(name:"variables.tf",overwrite:true,template:"security/${securityProvider}/variables.tf.tpl",bindings:[env:env])
+					file(name:"variables.gen.tf",overwrite:true,template:"security/${securityProvider}/variables.tf.tpl",bindings:[env:env])
 
 					// Variáveis de saída
-					file(name:"output.tf",overwrite:true,template:"security/${securityProvider}/outputs.tf.tpl",bindings:[])
+					file(name:"output.gen.tf",overwrite:true,template:"security/${securityProvider}/outputs.tf.tpl",bindings:[])
 
 					// Customizações locais
 					file(name:"custom.tf",overwrite:false,template:"custom.tf.tpl",bindings:[])

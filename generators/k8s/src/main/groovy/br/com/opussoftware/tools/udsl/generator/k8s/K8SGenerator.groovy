@@ -23,6 +23,4 @@ class K8SGenerator extends AbstractGenerator {
 	public String getAuthor() {
 		return "PMS";
 	}
-	
-	
 }
