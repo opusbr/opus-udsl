@@ -28,7 +28,7 @@ public class OpusUdslGeneratorApplicationTests {
 	private Shell shell;
 
 	@Test
-	public void testGenerateK8S() {
+	public void testGenerateSample1K8S() {
 		
 		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample1-k8s"));
 		def modelFile = new File(this.getClass().getResource("/sample1.udsl").toURI())
@@ -91,7 +91,7 @@ public class OpusUdslGeneratorApplicationTests {
 	}
 
 	@Test
-	public void testGenerateEC2() {
+	public void testGenerateSample1EC2() {
 		
 		
 		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample1-ec2"));

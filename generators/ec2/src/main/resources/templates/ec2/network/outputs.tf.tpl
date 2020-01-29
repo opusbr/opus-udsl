@@ -7,12 +7,12 @@
 #
 
 output "vpc_id" {
-	value = aws_vpc.main.id
+	value = local.vpc_id
 	description = "Generated VPC id"
 }
 
 output "vpc_arn" {
-	value = aws_vpc.main.arn
+	value = local.vpc_arn
 	description = "Generated VPC ARN"
 }
 
