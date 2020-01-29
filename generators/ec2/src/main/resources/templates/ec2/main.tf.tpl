@@ -22,10 +22,17 @@ module "network" {
 
  
 //================================================================== Ingress
+variable "certificate_arn" {
+	type = string
+	description = "ARN of the certificate to use for the ingress LB. If not informed, we'll create a dummy self-signed certificate"
+	default = ""
+}
+ 
 module "ingress" {
     source = "./ingress"
 	vpc_id = local.vpc_id
 	subnet_ids = local.ingress_subnet_id
+	certificate_arn = var.certificate_arn
 }
   
  

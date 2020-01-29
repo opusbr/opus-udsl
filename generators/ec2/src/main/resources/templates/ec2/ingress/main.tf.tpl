@@ -125,7 +125,6 @@ resource "aws_acm_certificate" "cert_${epSuffix}" {
 # Application LB for ${ep.name} endpoint
 #
 resource "aws_lb" "ingress_${epSuffix}" {
-  name_prefix        = "${ec2.awsName(env.name)}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.public_tls.id]
@@ -190,8 +189,9 @@ resource "aws_lb_listener_rule" "route_${epSuffix}_${routeName}${routeCounter}" 
 	}
 	
 	condition {
-		field = "path-pattern"
-		values = ["${route.path}"]
+		path_pattern {
+			values = ["${route.path}"]
+		}
 	}
 }
 

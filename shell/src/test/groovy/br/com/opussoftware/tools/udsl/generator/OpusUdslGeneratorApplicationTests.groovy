@@ -30,12 +30,11 @@ public class OpusUdslGeneratorApplicationTests {
 	@Test
 	public void testGenerateK8S() {
 		
-		def tempDir = Files.createTempDirectory("junit")
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample1-k8s"));
 		def modelFile = new File(this.getClass().getResource("/sample1.udsl").toURI())
-		def configFile = new File(this.getClass().getResource("/sample1.config").toURI())
+		def configFile = new File(this.getClass().getResource("/sample1-k8s.config").toURI())
 		
 		def result = shell.evaluate(new Input() {
-
 			@Override
 			public String rawText() {
 				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
@@ -76,10 +75,9 @@ public class OpusUdslGeneratorApplicationTests {
 		
 		def tempDir = Files.createTempDirectory("junit")
 		def modelFile = new File("src/test/resources/sample1.udsl")
-		def configFile = new File("src/test/resources")
+		def configFile = new File("src/test/resources/k8sconfig")
 		
 		def result = shell.evaluate(new Input() {
-
 			@Override
 			public String rawText() {
 				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
@@ -89,15 +87,14 @@ public class OpusUdslGeneratorApplicationTests {
 		if ( result instanceof Throwable ) {
 			log.error "Erro executando comando: ${result.message}", result
 			throw result
-		}
-		
+		}		
 	}
 
 	@Test
 	public void testGenerateEC2() {
 		
 		
-		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/ec2-generated"));
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample1-ec2"));
 		def modelFile = new File(this.getClass().getResource("/sample1-ec2.udsl").toURI())
 		def configFile = new File(this.getClass().getResource("/sample1-ec2.config").toURI())
 		
@@ -120,9 +117,32 @@ public class OpusUdslGeneratorApplicationTests {
 	public void testGenerateEC2_2() {
 		
 		
-		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/ec2-generated"));
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample3-ec2"));
 		def modelFile = new File(this.getClass().getResource("/sample3.udsl").toURI())
 		def configFile = new File(this.getClass().getResource("/sample3.config").toURI())
+		
+		def result = shell.evaluate(new Input() {
+	
+			@Override
+			public String rawText() {
+				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+			}
+		})
+		
+		if ( result instanceof Throwable ) {
+			log.error "Erro executando comando: ${result.message}", result
+			throw result
+		}
+		
+	}
+
+	@Test
+	public void testGenerateEC2_3() {
+		
+		
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample4-ec2"));
+		def modelFile = new File(this.getClass().getResource("/sample4.udsl").toURI())
+		def configFile = new File(this.getClass().getResource("/sample4-ec2.config").toURI())
 		
 		def result = shell.evaluate(new Input() {
 	
