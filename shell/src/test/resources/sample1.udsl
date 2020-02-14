@@ -2,41 +2,30 @@ package br.com.opussoftware.examples.petshop
 
 
 def FILA_AUDITORIA = "FilaAuditoria"
-def IMAGE_APP = "httpd"
 
-Environment("gcsf")  { 
+Environment("petshop")  { 
 	
 
 	Endpoint('www.petshop.com.br') { 
 		Route( path: "/clientes", deployment: "SvcCliente", contract: "cliente.yaml") 
 		Route( path: "/feedback", deployment: "SvcFeedback")
-		Route( path: "/echo", deployment: "SvcTest")
-		Route( path: "/health", deployment: "SvcTest")
-		Route( path: "/teste", deployment: "SvcTest2")
 	} 
 
-	Deployment ('SvcTest') {
-		Image( name:'containous/whoami')
-	}
-
-	Deployment ('SvcTest2') {
-		Image( name:'containous/whoami')
-	}
 
 	Deployment ('SvcCliente') {
-		Image( name:IMAGE_APP) 
+		Image( name:'opussoftware/petshop-clientes') 
 		Endpoint( "mydb" ) 
 		MessageChannel( name: FILA_AUDITORIA, role: "Producer" )
 	} 
 
 	Deployment ('SvcFeedback') { 
-		Image( name: IMAGE_APP) 
+		Image( name:'opussoftware/petshop-feedback') 
 		Endpoint( "mydb" ) 
 		MessageChannel( name: FILA_AUDITORIA, role: "Producer" )
 	} 
 
 	Deployment ('SvcAuditoria') { 
-		Image( name: IMAGE_APP ) // version aqui viria de um parâmetro passado no momento da geração 
+		Image( name:'opussoftware/petshop-auditoria' ) 
 		MessageChannel( name: FILA_AUDITORIA, role: "Consumer" )
 	} 
 

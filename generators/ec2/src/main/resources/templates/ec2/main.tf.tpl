@@ -10,7 +10,7 @@ def dollar = '$'
 locals {
 	vpc_id = module.network.vpc_id
 	services_subnet_id = module.network.services_subnet_id
-	ingress_subnet_id = module.network.ingress_subnet_id
+	ingress_subnet_ids = module.network.ingress_subnet_id
 }
 
 
@@ -22,10 +22,17 @@ module "network" {
 
  
 //================================================================== Ingress
+variable "certificate_arn" {
+	type = string
+	description = "ARN of the certificate to use for the ingress LB. If not informed, we'll create a dummy self-signed certificate"
+	default = ""
+}
+ 
 module "ingress" {
     source = "./ingress"
 	vpc_id = local.vpc_id
-	subnet_ids = local.ingress_subnet_id
+	subnet_ids = local.ingress_subnet_ids
+	certificate_arn = var.certificate_arn
 }
   
  
@@ -41,6 +48,8 @@ module "${moduleName}" {
   source = "./${dep.name}"
   vpc_id = local.vpc_id
   services_subnet_id = local.services_subnet_id
+  ingress_subnet_ids = local.ingress_subnet_ids
+
   ami_owner_ids = ["${ec2.amiName(config,dep.name).owner}"]
   ami_name = "${ec2.amiName(config,dep.name).name}"
   lb_target_group_arns = [
