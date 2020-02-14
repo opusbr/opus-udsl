@@ -65,7 +65,9 @@ resource "aws_autoscaling_group" "deployment" {
   max_size           = var.autoscale_max_size <= 0 ? 1: var.autoscale_max_size
   min_size           = var.autoscale_min_size <= 0 ? 1: var.autoscale_min_size
   
-  vpc_zone_identifier = [var.services_subnet_id]
+  vpc_zone_identifier = var.ingress_subnet_ids
+  default_cooldown = 30
+  health_check_grace_period = 30
 
   launch_template {
 	id      = aws_launch_template.tpl.id

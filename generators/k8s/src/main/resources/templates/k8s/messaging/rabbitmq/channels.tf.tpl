@@ -26,6 +26,7 @@ locals  {
 <% } %>
 
 provider "rabbitmq" {
+	version = "~> 1.2"
 	endpoint = local.management_endpoint
 	username = local.rabbitmq_username
 	password = local.rabbitmq_password

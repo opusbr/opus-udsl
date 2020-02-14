@@ -20,6 +20,12 @@ variable "services_subnet_id" {
 	description = "VPC Subnet Ids where we'll create this deployment"
 }
 
+variable "ingress_subnet_ids" {
+	type = list
+	description = "VPC Subnet Ids "
+}
+
+
 variable "ami_name" {
 	type = string
 	description = "AMI name that we'll use for this deployment"

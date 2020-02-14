@@ -4,7 +4,7 @@ package br.com.opussoftware.examples.petshop
 def FILA_AUDITORIA = "FilaAuditoria"
 def IMAGE_APP = "httpd"
 
-Environment("gcsf")  { 
+Environment("petshop")  { 
 	
 
 	Endpoint('www.petshop.com.br') { 
