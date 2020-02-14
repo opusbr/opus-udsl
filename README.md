@@ -19,8 +19,8 @@ em microserviços**.
   * Arquitetura extensível, permitindo a adição de novos módulos de geração voltados para novas plataformas-alvo
     de forma descritiva
   * Geradores "out-of-the-box" disponíveis:
-    ** Terraform + Kubernetes: Gera artefatos Terraform para deploy da aplicação em um cluster Kubernetes padrão
-    ** Terraform + EC2: Gera artefatos Terraform para deploy da aplicação em instâncias EC2 da AWS.
+     * Terraform + Kubernetes: Gera artefatos Terraform para deploy da aplicação em um cluster Kubernetes padrão
+     * Terraform + EC2: Gera artefatos Terraform para deploy da aplicação em instâncias EC2 da AWS.
 
 ## Como usar o Opus uDSL Generator ?
 
