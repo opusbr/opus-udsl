@@ -1,3 +1,5 @@
+![CI](https://github.com/opusbr/opus-udsl/workflows/CI/badge.svg)
+
 ## O que é o Opus uDSL Generator ?
 
 É um gerador de código que tem como objetivo **acelerar o desenvolvimentos de sistemas com arquitetura baseada
