@@ -21,11 +21,25 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 class EnvironmentParser {
+
+	EnvironmentSpec parse(Reader reader, String filename, Map variables = null) {
+		return parse(reader, null, filename,variables)
+	}
 	
-	EnvironmentSpec parse(Reader reader, EnvironmentSpec initialSpec = null) {
+	EnvironmentSpec parse(Reader reader, EnvironmentSpec initialSpec,Map variables = null) {
+		return parse(reader, initialSpec, null,variables)
+	}
+	
+	EnvironmentSpec parse(Reader reader,Map variables = null) {
+		return parse(reader, null, null,variables)
+	}
+
+	
+	protected EnvironmentSpec parse(Reader reader, EnvironmentSpec initialSpec, String filename, Map variables) {
 		
-		def binding = new Binding();
+		def binding = new Binding(variables?:[:])
 		def config = new CompilerConfiguration()
+		
 		
 		withConfig(config) {
 			secureAst {
@@ -36,12 +50,12 @@ class EnvironmentParser {
 			}
 		}
 		
-		def shell = new GroovyShell(binding, config)		
-		def script = shell.parse(reader)		
+		def shell = new GroovyShell(binding, config)
+		def script = shell.parse(reader, filename?: "Environment.udsl")		
 		def environment = initialSpec ?: new EnvironmentSpec()
 		
 		script.metaClass.getEnvironment = { -> environment }
-		script.metaClass.methodMissing = environmentMethodMissing		
+		script.metaClass.methodMissing = environmentMethodMissing
 		script.run()
 		
 		return environment
@@ -58,7 +72,7 @@ class EnvironmentParser {
 				processEnvironmentRoot( environment, args)
 			}	
 			else {
-				throw new ParserException("Elemento raiz deve ser um 'Environment': name=${name}, args.size=${args}", Token.NULL)
+				throw new ParserException("[E75] Unsupported element ': name=${name}, args=${args}", Token.NULL)
 			}		
 		}
 	}
@@ -66,19 +80,29 @@ class EnvironmentParser {
 	def processEnvironmentRoot(environment, args) {
 		
 		
-		if ( args.size() != 2 ) {
-			throw new ParserException("sintaxe: Environment 'nome' { definição } ", Token.NULL)			
+		if ( args.size() < 2 || args.size() > 3 ) {
+			throw new ParserException("Syntax: Environment(name:'name', tags:['tag1','tag2'])  { specification } ", Token.NULL)			
+		}
+		
+		def delegate = environment
+		
+		
+		if ( args[0] instanceof Map) {
+			def name = args[0].name
+			if (!name) {
+				throw new ParserException("[E93] Environment requires a 'name'", Token.NULL);
+			}
+			delegate.name = 
 		}
 		
 		if ( !args[0] instanceof String ) {
-			throw new ParserException("Nome do ambiente deve ser um string ", Token.NULL)			
+			throw new ParserException("Environment name must be a string ", Token.NULL)			
 		}
 
 		if ( !args[1] instanceof Closure ) {
 			throw new ParserException("Definição do ambiente inválida. Deve ser um bloco de código declarando seus elementos", Token.NULL)			
 		}		
 		
-		def delegate = environment
 		delegate.name = args[0]
 		args[1].delegate = delegate
 		args[1].resolveStrategy = Closure.DELEGATE_FIRST

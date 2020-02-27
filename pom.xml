@@ -28,10 +28,33 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>5.6.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>1.6.0</version>
+			</dependency>
+
+
+			<dependency>
 				<groupId>org.codehaus.groovy</groupId>
 				<artifactId>groovy-all</artifactId>
 				<version>2.5.6</version>
 				<type>pom</type>
+				<exclusions>
+					<exclusion>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-api</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 			<dependency>
@@ -98,7 +121,7 @@
 				<plugin>
 					<groupId>pl.project13.maven</groupId>
 					<artifactId>git-commit-id-plugin</artifactId>
-					<version>2.2.5</version>
+					<version>4.0.0</version>
 					<executions>
 						<execution>
 							<id>get-the-git-infos</id>
@@ -131,14 +154,6 @@
 					</configuration>
 				</plugin>
 
-				<plugin>
-					<groupId>pl.project13.maven</groupId>
-					<artifactId>git-commit-id-plugin</artifactId>
-					<version>4.0.0</version>
-					<configuration>
-						<failOnNoGitDirectory>false</failOnNoGitDirectory>
-					</configuration>
-				</plugin>
 
 			</plugins>
 		</pluginManagement>

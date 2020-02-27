@@ -10,9 +10,8 @@ import groovy.transform.Canonical
  *
  */
 @Canonical
-class EnvironmentSpec {
+class EnvironmentSpec extends AbstractSpec {
 	
-	String name;
 	List<EndpointSpec> endpoints = []
 	List<EndpointSpec> externalEndpoints = []
 	List<DeploymentSpec> deployments = []
@@ -40,7 +39,7 @@ class EnvironmentSpec {
 	}
 	
 	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
-		def delegate = new DeploymentSpec(name)
+		def delegate = new DeploymentSpec(name:name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()

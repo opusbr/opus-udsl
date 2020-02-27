@@ -3,8 +3,7 @@ package br.com.opussoftware.udsl.model
 import groovy.transform.Canonical
 
 @Canonical
-class EndpointSpec {	
-	String name;
+class EndpointSpec extends AbstractSpec {	
 	String target;
 	String proto;
 	String port

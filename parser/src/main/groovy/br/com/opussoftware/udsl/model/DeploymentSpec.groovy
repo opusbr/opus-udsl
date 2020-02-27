@@ -3,8 +3,7 @@ package br.com.opussoftware.udsl.model
 import groovy.transform.Canonical
 
 @Canonical
-class DeploymentSpec {	
-	String name;
+class DeploymentSpec  extends AbstractSpec {	
 	List<ImageSpec> images = []
 	List<MessageChannelSpec> channels = []
 	List<EndpointSpec> endpoints = []
@@ -14,7 +13,17 @@ class DeploymentSpec {
 		def image = new ImageSpec(params)
 		images.add(image)		
 	}
-	
+
+	public Image(Map params, @DelegatesTo(value=ImageSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		def delegate = new ImageSpec(params)
+				
+		spec.delegate = delegate
+		spec.resolveStrategy = Closure.DELEGATE_FIRST
+		spec.run()
+
+		images.add(delegate)
+	}
+
 	public Image(String name) {
 		def image = new ImageSpec(name:name)
 		images.add(image)
@@ -38,7 +47,7 @@ class DeploymentSpec {
 
 	public Deployment(String name) {
 		if ( name == this.name ) {
-			throw new IllegalArgumentException("[E35] Referência inválida: deployment: ${this.name}, ref=${name}")
+			throw new IllegalArgumentException("[E35] Invalid self-reference: deployment: ${this.name}, ref=${name}")
 		}
 		def dep = new DeploymentSpec(name:name)
 		deploymentRefs.add(name)

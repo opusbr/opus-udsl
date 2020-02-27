@@ -10,9 +10,8 @@ import groovy.transform.Canonical
  *
  */
 @Canonical
-class MessageChannelSpec {
+class MessageChannelSpec extends AbstractSpec {
 	
-	String name;
 	String role;
 	
 	/**

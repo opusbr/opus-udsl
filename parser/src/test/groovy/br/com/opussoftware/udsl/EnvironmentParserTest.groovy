@@ -15,7 +15,18 @@ class EnvironmentParserTest {
 		
 		def reader = getClass().getResourceAsStream("/sample1.udsl").newReader()
 		def parser = new EnvironmentParser()
-		def env = parser.parse(reader)	
+		def env = parser.parse(reader,"sample1.udsl", [version:"1.0"])	
+		
+		def json = JsonOutput.toJson(env)
+		println json
+	}
+
+	@Test
+	public void testParse2() {
+		
+		def reader = getClass().getResourceAsStream("/sample2.udsl").newReader()
+		def parser = new EnvironmentParser()
+		def env = parser.parse(reader,"sample2.udsl", [version:"1.0"])
 		
 		def json = JsonOutput.toJson(env)
 		println json
