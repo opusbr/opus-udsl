@@ -37,16 +37,24 @@ class EnvironmentSpec extends AbstractSpec {
 		def ep = new EndpointSpec(params)		
 		externalEndpoints.add(ep)
 	}
-	
-	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+
+	public Deployment( Map args, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
 		def delegate = new DeploymentSpec(name:name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()
 		
 		deployments.add(delegate)
-
 	}
+	
+	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		Deployment([name:name],spec)
+	}
+	
+	public Deployment( String name, String[] tags, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		Deployment([name:name,tags:tags],spec)
+	}
+
 
 	public MessageChannel( Map params ) {
 		def delegate = new MessageChannelSpec(params)
