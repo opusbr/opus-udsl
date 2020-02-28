@@ -39,7 +39,7 @@ class EnvironmentSpec extends AbstractSpec {
 	}
 
 	public Deployment( Map args, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
-		def delegate = new DeploymentSpec(name:name)
+		def delegate = new DeploymentSpec(args)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()

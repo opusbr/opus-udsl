@@ -13,7 +13,7 @@ import java.util.function.Consumer
 abstract class AbstractSpec {
 	
 	String name;
-	String[] tags = []
+	Map tags = [:]
 	
 	abstract List<AbstractSpec> getChildren();
 	

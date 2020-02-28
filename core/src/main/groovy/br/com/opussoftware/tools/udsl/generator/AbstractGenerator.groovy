@@ -18,7 +18,7 @@ abstract class AbstractGenerator implements Generator {
 	
 
 	@Override
-	public int generate(List<EnvironmentSpec> envSpec, ConfigObject generatorConfig, File outputDir, ResourceLoader resourceLoader) {
+	public int generate(List<EnvironmentSpec> environments, ConfigObject generatorConfig, File outputDir, ResourceLoader resourceLoader) {
 		
 		
 		// Configurações do compilador
@@ -36,19 +36,20 @@ abstract class AbstractGenerator implements Generator {
 		// Prepara o delegate
 		FileTreeBuilder ftb = new FileTreeBuilder(outputDir)
 		def args = [
-			envSpec: envSpec,
+			envSpec: environments,
+			environments: environments,
 			config: generatorConfig,
 			outputDir: outputDir,
 			resourceLoader: resourceLoader
 		]
 		
-		GeneratorDelegate spec = new GeneratorDelegate(fileTreeBuilder: ftb, args: args, resourceLoader: resourceLoader, prefix: prefix)
+		GeneratorDelegate delegate = new GeneratorDelegate(fileTreeBuilder: ftb, args: args, resourceLoader: resourceLoader, prefix: prefix)
 		
 		
 		def shell = new GroovyShell(this.class.getClassLoader(),binding, config)
 		
-		def script = shell.parse(reader)
-		script.setDelegate(spec)
+		def script = (DelegatingScript)shell.parse(reader)
+		script.setDelegate(delegate)
 		script.run();
 		
 		return 0;

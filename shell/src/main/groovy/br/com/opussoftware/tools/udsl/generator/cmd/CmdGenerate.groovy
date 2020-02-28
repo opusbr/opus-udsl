@@ -82,7 +82,7 @@ class CmdGenerate {
 			log.info "Processando modelo: ${it.name}"
 			def r = it.newReader()
 			def envSpec = environmentParser.parse(r)
-			environments << envSpec
+			environments += envSpec
 		}
 		
 		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
