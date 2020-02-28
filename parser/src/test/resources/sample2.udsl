@@ -12,33 +12,34 @@ Environment("gcsf")  {
 	// Gera projeto angular com consumo dos contratos
 	// Gera deployment com NGINX e configuração de proxy reverso
 	Deployment (name:'Frontend', tags: [frontend:true]) {
-		Image( name: "opussoftware/frontend:prod")
-		Deployment("Form1") // Consome outro deployment via proxy reverso no backend
-		//Endpoint('www.petshop.com.br') // Consume todas as rotas
-		Endpoint('www.petshop.com.br', routes: ["/clientes"]) // Consume as rotas indicadas
+		Service( name: "frontend") {
+			Route(path:"/form1", deployment:"Form1") // Consome outro deployment via proxy reverso no backend
+		}
 	}
 
 	// Microfrontend
 	Deployment ('Form1') {
-		Image( name: "opussoftware/form1")
+		Service( name: "form1")
 	}
 
 	// API Rest
 	Deployment ('SvcCliente') {
-		Image( name: "cliente") {
-			Route( path: "/clientes", contract: "cliente.yml")
+		Service( name: "cliente") {
+			Route( path: "/cadastro", contract: "cliente-cadastro.yml", deployment: "SvcClienteCadastro")
+			Route( path: "/feedback", contract: "cliente-feedback.yml", deployment: "SvcFeedback")
 		}
 		
 		Endpoint( "mydb" )
-		Route(deployment:"SvcFeedback" )
 		MessageChannel( name: "FilaAuditoria", role: "Producer" )
 	}
 
 	Deployment ('SvcFeedback') {
-		Image( name: "feedback") {
+		Service( name: "feedback") {
 			Route( contract: "feedback.yml") // Declara rota e contrato
 		}
 		Endpoint( "mydb" )
 	}
+	
+	Endpoint(name:"mydb", target:"mydb", proto: "tcp", port: 3306, authenticated: false)
 
 }

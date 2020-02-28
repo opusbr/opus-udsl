@@ -14,5 +14,12 @@ class EndpointSpec extends AbstractSpec {
 		def route = new RouteSpec(params)
 		routes.add(route)		
 	}
+	
+	
+	@Override
+	public List<AbstractSpec> getChildren() {
+		return routes
+	}
+
 }
 

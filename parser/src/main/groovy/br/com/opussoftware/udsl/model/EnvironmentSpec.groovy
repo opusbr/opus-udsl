@@ -62,5 +62,10 @@ class EnvironmentSpec extends AbstractSpec {
 		messageChannels.add(delegate)
 
 	}
+	
+	@Override
+	public List<AbstractSpec> getChildren() {
+		return endpoints + externalEndpoints + deployments + messageChannels
+	}
 
 }

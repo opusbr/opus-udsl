@@ -1,6 +1,8 @@
 package br.com.opussoftware.udsl
 
 import static org.junit.Assert.*
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matcher.*
 
 import org.junit.Test
 
@@ -17,6 +19,8 @@ class EnvironmentParserTest {
 		def parser = new EnvironmentParser()
 		def env = parser.parse(reader,"sample1.udsl", [version:"1.0"])	
 		
+		assertThat(env.size(), equalTo(1))
+		
 		def json = JsonOutput.toJson(env)
 		println json
 	}
@@ -27,6 +31,15 @@ class EnvironmentParserTest {
 		def reader = getClass().getResourceAsStream("/sample2.udsl").newReader()
 		def parser = new EnvironmentParser()
 		def env = parser.parse(reader,"sample2.udsl", [version:"1.0"])
+
+		assertThat(env.size(), equalTo(1))
+		
+		def count = 0
+		env[0].traverse { spec ->
+			count++
+		}
+		
+		println "Elements found: ${count}"
 		
 		def json = JsonOutput.toJson(env)
 		println json

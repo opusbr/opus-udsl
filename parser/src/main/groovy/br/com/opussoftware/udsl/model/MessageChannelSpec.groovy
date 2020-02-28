@@ -27,5 +27,10 @@ class MessageChannelSpec extends AbstractSpec {
 	 */
 	String mode = "p2p"; 
 	
+	@Override
+	public List<AbstractSpec> getChildren() {
+		return []
+	}
+
 
 }
