@@ -9,7 +9,7 @@ abstract class AbstractGenerator implements Generator {
 	
 	/**
 	 * @return Resource prefix to use with this generator. By convention, this prefix should take
-	 *         the following form: "/templates/<module name>", where <module name> is the same value
+	 *         the following form: "/templates/&lt;module name&gt;", where &lt;module name&gt; is the same value
 	 *         returned by the getName() method. 
 	 */
 	protected String getResourcePrefix() {
@@ -30,8 +30,9 @@ abstract class AbstractGenerator implements Generator {
 		config.scriptBaseClass = DelegatingScript.class.getName()
 		
 		def prefix = getResourcePrefix()
+		def resourceName = prefix + "Generator.groovy"
 		
-		Reader reader = resourceLoader.getResourceAsStream(prefix + "Generator.groovy").newReader()
+		Reader reader = resourceLoader.getResourceAsStream(resourceName).newReader()
 		
 		// Prepara o delegate
 		FileTreeBuilder ftb = new FileTreeBuilder(outputDir)
@@ -48,7 +49,7 @@ abstract class AbstractGenerator implements Generator {
 		
 		def shell = new GroovyShell(this.class.getClassLoader(),binding, config)
 		
-		def script = (DelegatingScript)shell.parse(reader)
+		def script = (DelegatingScript)shell.parse(reader, resourceName)
 		script.setDelegate(delegate)
 		script.run();
 		

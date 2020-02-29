@@ -28,7 +28,7 @@ class UDslScriptDelegate {
 	}
 	
 	def Environment(String name, String[] tags, @DelegatesTo(value=EnvironmentSpec, strategy=Closure.DELEGATE_FIRST) Closure spec) {
-		Environment([name:name,tags:tags, spec)		
+		Environment([name:name,tags:tags], spec)		
 	}
 
 }

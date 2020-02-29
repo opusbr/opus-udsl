@@ -113,7 +113,7 @@ class CmdGenerate {
 		
 		configs.each { File configFile ->
 			
-			log.info("[I113] Processando arquivo de configuração: ${configFile}")
+			log.info("[I113] Processing config file: ${configFile}")
 			def partialConfig = new ConfigSlurper(environment).parse(configFile.toURI().toURL())
 			
 			if ( mergedConfig == null ) {

@@ -18,7 +18,7 @@ class EnvironmentSpec extends AbstractSpec {
 	List<MessageChannelSpec> messageChannels = []
 	
 	public Endpoint( String name, @DelegatesTo(value=EndpointSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
-		def delegate = new EndpointSpec(name)
+		def delegate = new EndpointSpec(name:name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()
