@@ -10,16 +10,15 @@ import groovy.transform.Canonical
  *
  */
 @Canonical
-class EnvironmentSpec {
+class EnvironmentSpec extends AbstractSpec {
 	
-	String name;
 	List<EndpointSpec> endpoints = []
 	List<EndpointSpec> externalEndpoints = []
 	List<DeploymentSpec> deployments = []
 	List<MessageChannelSpec> messageChannels = []
 	
 	public Endpoint( String name, @DelegatesTo(value=EndpointSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
-		def delegate = new EndpointSpec(name)
+		def delegate = new EndpointSpec(name:name)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()
@@ -38,22 +37,35 @@ class EnvironmentSpec {
 		def ep = new EndpointSpec(params)		
 		externalEndpoints.add(ep)
 	}
-	
-	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
-		def delegate = new DeploymentSpec(name)
+
+	public Deployment( Map args, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		def delegate = new DeploymentSpec(args)
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()
 		
 		deployments.add(delegate)
-
 	}
+	
+	public Deployment( String name, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		Deployment([name:name],spec)
+	}
+	
+	public Deployment( String name, String[] tags, @DelegatesTo(value=DeploymentSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		Deployment([name:name,tags:tags],spec)
+	}
+
 
 	public MessageChannel( Map params ) {
 		def delegate = new MessageChannelSpec(params)
 		
 		messageChannels.add(delegate)
 
+	}
+	
+	@Override
+	public List<AbstractSpec> getChildren() {
+		return endpoints + externalEndpoints + deployments + messageChannels
 	}
 
 }

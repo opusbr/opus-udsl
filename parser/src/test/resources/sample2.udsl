@@ -1,0 +1,45 @@
+package br.com.opussoftware.examples.petshop
+
+
+
+Environment("gcsf")  {
+
+	Endpoint('www.petshop.com.br') {
+		Route( path: "/", deployment: "Frontend")
+		Route( path: "/clientes", deployment: "SvcCliente")
+	}
+
+	// Gera projeto angular com consumo dos contratos
+	// Gera deployment com NGINX e configuração de proxy reverso
+	Deployment (name:'Frontend', tags: [frontend:true]) {
+		Service( name: "frontend") {
+			Route(path:"/form1", deployment:"Form1") // Consome outro deployment via proxy reverso no backend
+		}
+	}
+
+	// Microfrontend
+	Deployment ('Form1') {
+		Service( name: "form1")
+	}
+
+	// API Rest
+	Deployment ('SvcCliente') {
+		Service( name: "cliente") {
+			Route( path: "/cadastro", contract: "cliente-cadastro.yml", deployment: "SvcClienteCadastro")
+			Route( path: "/feedback", contract: "cliente-feedback.yml", deployment: "SvcFeedback")
+		}
+		
+		Endpoint( "mydb" )
+		MessageChannel( name: "FilaAuditoria", role: "Producer" )
+	}
+
+	Deployment ('SvcFeedback') {
+		Service( name: "feedback") {
+			Route( contract: "feedback.yml") // Declara rota e contrato
+		}
+		Endpoint( "mydb" )
+	}
+	
+	Endpoint(name:"mydb", target:"mydb", proto: "tcp", port: 3306, authenticated: false)
+
+}

@@ -10,9 +10,8 @@ import groovy.transform.Canonical
  *
  */
 @Canonical
-class MessageChannelSpec {
+class MessageChannelSpec extends AbstractSpec {
 	
-	String name;
 	String role;
 	
 	/**
@@ -28,5 +27,10 @@ class MessageChannelSpec {
 	 */
 	String mode = "p2p"; 
 	
+	@Override
+	public List<AbstractSpec> getChildren() {
+		return []
+	}
+
 
 }

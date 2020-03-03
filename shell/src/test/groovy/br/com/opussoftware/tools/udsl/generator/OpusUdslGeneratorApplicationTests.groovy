@@ -77,7 +77,7 @@ public class OpusUdslGeneratorApplicationTests {
 		
 		def tempDir = Files.createTempDirectory("junit")
 		def modelFile = new File("src/test/resources")
-		def configFile = new File(this.getClass().getResource("/sample1.config").toURI())
+		def configFile = new File("src/test/resources/k8sconfig")
 		
 		def result = shell.evaluate(new Input() {
 

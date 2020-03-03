@@ -28,6 +28,9 @@ args.envSpec.each { env ->
 		// Estes endpoint são os de entradas
 		dir("ingress") {
 			env.endpoints.each { ep ->
+				
+				println "Ingress: ep=${ep?.name}"
+				
 				dir(ep.name) {
 					file(name:"main.gen.tf",template:"ingress.tf.tpl",overwrite:true,
 					bindings:[

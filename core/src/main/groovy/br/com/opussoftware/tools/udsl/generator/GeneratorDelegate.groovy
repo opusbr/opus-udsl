@@ -46,7 +46,7 @@ class GeneratorDelegate {
 	
 	public File dir(String name, Closure closure) {
 		checkFtbHook()
-		log.info ("[I46] Criando diretório ${name}")
+		log.info ("[I46] Creating diretory ${name}")
 		Object delegate = closure.getDelegate()
 		return fileTreeBuilder.dir(name,closure)
 	}
@@ -94,9 +94,7 @@ class GeneratorDelegate {
 		tplBindings.putAll(bindings)
 		
 		byte[] content = TemplateHelper.processTemplate(resourceLoader, prefix + template, tplBindings)
-		
-		log.info ("[I46] Criando arquivo ${name}, overwrite=${overwrite}")
-		
+				
 		return fileTreeBuilder.file(name, overwrite, content)
 	}
 	

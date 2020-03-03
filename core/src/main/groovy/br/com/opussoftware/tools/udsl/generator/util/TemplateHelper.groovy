@@ -14,7 +14,7 @@ class TemplateHelper {
 
 	static byte[] processTemplate(ResourceLoader loader, String template, Map bindings) {
 		
-		log.info("Processando template: ${template}")
+		log.info("[I17] Processing template: ${template}")
 		
 		Reader r= locateTemplate(loader, template);
 		try {
@@ -40,7 +40,7 @@ class TemplateHelper {
 				
 		InputStream is = loader.getResourceAsStream(tpl)
 		if ( is == null ) {
-			throw new IllegalArgumentException("Template não encontrado: ${tpl}")
+			throw new IllegalArgumentException("[E43] Template not found: ${tpl}")
 		}
 		return is.newReader()
 		
