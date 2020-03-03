@@ -1,5 +1,5 @@
 import groovy.json.StringEscapeUtils
-import br.com.opussoftware.tools.udsl.generator.ec2.TFHelper
+import io.github.opusbr.tools.udsl.generator.ec2.TFHelper
 
 /*
  * Exemplo de definição de gerador usando DSL

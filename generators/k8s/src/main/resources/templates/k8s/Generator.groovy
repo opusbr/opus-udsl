@@ -1,5 +1,5 @@
-import br.com.opussoftware.tools.udsl.generator.k8s.K8SHelper
-import br.com.opussoftware.tools.udsl.generator.k8s.TFHelper
+import io.github.opusbr.tools.udsl.generator.k8s.K8SHelper
+import io.github.opusbr.tools.udsl.generator.k8s.TFHelper
 
 /*
  * K8S Generator definitions
