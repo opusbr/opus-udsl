@@ -188,6 +188,28 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				
+				<configuration>
+					<descriptors>					
+						<descriptor>${basedir}/src/assembly/dist.xml</descriptor>
+					</descriptors>
+					<formats>
+						<format>zip</format>
+						<format>tar.gz</format>
+					</formats>
+				</configuration>
+			</plugin>
 
 
 		</plugins>
