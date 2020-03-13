@@ -7,6 +7,7 @@ class EndpointSpec extends AbstractSpec {
 	String target;
 	String proto;
 	String port
+	String contract
 	boolean authenticated
 	List<RouteSpec> routes = []
 	
