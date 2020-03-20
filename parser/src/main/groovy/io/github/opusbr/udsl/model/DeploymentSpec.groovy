@@ -15,7 +15,10 @@ class DeploymentSpec  extends AbstractSpec {
 		if ( !params.containsKey("name")) {
 			params = params + [name:this.name]				
 		}
-
+	}
+	
+	public Service(@DelegatesTo(value=ServiceSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
+		Service([name:this.name],spec)
 	}
 
 	public Service(Map params, @DelegatesTo(value=ServiceSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
