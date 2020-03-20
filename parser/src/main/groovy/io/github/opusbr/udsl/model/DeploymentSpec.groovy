@@ -12,36 +12,10 @@ class DeploymentSpec  extends AbstractSpec {
 	Set<String> serviceNames = []
 
 	public Service(Map params) {
-
-		ServiceSpec svc
-		if ( params.containsKey("name")) {
-			svc = new ServiceSpec(params)
-			if (serviceNames.contains(svc.name)) {
-				// Flag issue for this service
-				svc.addIssue(Level.ERROR,"SVC001 - Duplicate service name: ${svc.name}")
-			}
-			else {
-				serviceNames.add(svc.name)
-			}
-		}
-		else {
-			// Anonymous service. As we always need a name,
-			// we'll inherit the Deployment's name. However,
-			def aux = [name: this.name]
-			aux << params
-			if (serviceNames.contains(svc.name)) {
-				// Flag issue for this service
-				svc.addIssue(Level.ERROR,"SVC002 - There's already another anonymous service or a service named ${this.name}")
-			}
-			else {
-				serviceNames.add(svc.name)
-			}
-
-			
-			svc = new ServiceSpec(params)
+		if ( !params.containsKey("name")) {
+			params = params + [name:this.name]				
 		}
 
-		services.add(svc)
 	}
 
 	public Service(Map params, @DelegatesTo(value=ServiceSpec, strategy=Closure.DELEGATE_FIRST ) Closure spec) {
@@ -50,6 +24,13 @@ class DeploymentSpec  extends AbstractSpec {
 		spec.delegate = delegate
 		spec.resolveStrategy = Closure.DELEGATE_FIRST
 		spec.run()
+		
+		if ( serviceNames.contains(delegate.name)) {
+			delegate.addIssue(Level.ERROR,"SVC060 - Service ${delegate.name} must be unique in Deployment ${this.name}")			
+		}
+		else {
+			serviceNames.add(delegate.name)
+		}
 
 		services.add(delegate)
 	}
