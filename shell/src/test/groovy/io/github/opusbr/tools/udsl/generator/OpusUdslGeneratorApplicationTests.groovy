@@ -93,6 +93,27 @@ public class OpusUdslGeneratorApplicationTests {
 		}
 		
 	}
+	
+	@Test
+	public void testGenerateK8SSample0() {
+		
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample0-k8s"));
+		def modelFile = new File("src/test/resources/sample0.udsl")
+		def configFile = new File("src/test/resources/sample0-k8s.config")
+		
+		def result = shell.evaluate(new Input() {
+			@Override
+			public String rawText() {
+				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+			}
+		})
+		
+		if ( result instanceof Throwable ) {
+			log.error "Erro executando comando: ${result.message}", result
+			throw result
+		}
+	}
+
 
 	@Test
 	public void testGenerateK8SFromConfigDir() {

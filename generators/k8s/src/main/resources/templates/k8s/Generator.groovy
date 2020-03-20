@@ -24,15 +24,26 @@ args.envSpec.each { env ->
 		// tfvars
 		file(name: "terraform.tfvars",template: "terraform.tfvars.tpl", overwrite:false, bindings:[env:env]);
 
+		// gitigore
+		file(name: ".gitignore",template: "gitignore.tpl", overwrite:false, bindings:[env:env]);
+		
 		// Gera um módulo para cada ingress pendurado no environment
 		// Estes endpoint são os de entradas
-		dir("ingress") {
+		dir("modules/ingress") {
 			env.endpoints.each { ep ->
 				
 				println "Ingress: ep=${ep?.name}"
 				
 				dir(ep.name) {
-					file(name:"main.gen.tf",template:"ingress.tf.tpl",overwrite:true,
+					file(name:"main.gen.tf",template:"ingress/main.tf.tpl",overwrite:true,
+					bindings:[
+						env:env,
+						endpoint:ep])
+					file(name:"variables.gen.tf",template:"ingress/variables.tf.tpl",overwrite:true,
+					bindings:[
+						env:env,
+						endpoint:ep])
+					file(name:"outputs.gen.tf",template:"ingress/outputs.tf.tpl",overwrite:true,
 					bindings:[
 						env:env,
 						endpoint:ep])
@@ -45,16 +56,28 @@ args.envSpec.each { env ->
 		}
 
 		// Gera um módulo para cada enpoint de saída
-		dir("external") {
+		dir("modules/external") {
 			env.externalEndpoints.each { ep ->
 				if ( ep.routes.size() == 0 ) {
 					dir( ep.name ) {
 						file(name:"main.gen.tf",overwrite:true,
-						template: "external-endpoint.tf.tpl",
+						template: "external/main.tf.tpl",
 						bindings: [
 							env:env,
 							endpoint:ep])
-						
+
+						file(name:"variables.gen.tf",overwrite:true,
+							template: "external/variables.tf.tpl",
+							bindings: [
+								env:env,
+								endpoint:ep])
+
+						file(name:"outputs.gen.tf",overwrite:true,
+							template: "external/variables.tf.tpl",
+							bindings: [
+								env:env,
+								endpoint:ep])
+
 						file(name:"custom.tf",template:"custom.tf.tpl",overwrite:false,
 							bindings:[
 								env:env,
@@ -66,7 +89,7 @@ args.envSpec.each { env ->
 
 		// Módulo para configuração do provedor de mensageria.
 		if ( !env.messageChannels.empty ) {
-			dir("messaging") {
+			dir("modules/messaging") {
 
 				// Determina o provedor de mensageria. Por default será o RabbitMQ
 				def messagingProvider = config?.messaging?.provider?:"rabbitmq"
@@ -94,15 +117,16 @@ args.envSpec.each { env ->
 		// Para cada deployment crio um deployment em si e um
 		// serviço
 		env.deployments.each { deployment ->
-			dir(deployment.name) {
+			dir("modules/${deployment.name}") {
 				def deploymentBindings = [
 					env: env,
 					deployment:deployment
 				]
 
-				file(name:"deployment.gen.tf",overwrite:true,template:"deployment.tf.tpl",bindings:deploymentBindings)
-				file(name:"service.gen.tf",overwrite:true,template:"service.tf.tpl",bindings:deploymentBindings)
-				
+				file(name:"main.gen.tf",overwrite:true,template:"deployment/main.tf.tpl",bindings:deploymentBindings)
+				file(name:"variables.gen.tf",overwrite:true,template:"deployment/variables.tf.tpl",bindings:deploymentBindings)
+				file(name:"outputs.gen.tf",overwrite:true,template:"deployment/outputs.tf.tpl",bindings:deploymentBindings)
+								
 				file(name:"custom.tf",template:"custom.tf.tpl",overwrite:false,
 					bindings:deploymentBindings)
 
@@ -113,7 +137,7 @@ args.envSpec.each { env ->
 		if ( config?.security?.enabled ?: false ) {
 			def securityProvider = config.security?.provider ?: 'keycloak'
 
-			dir('security') {
+			dir('modules/security') {
 				dir(securityProvider) {
 					// Arquivo principal
 					file(name:"main.gen.tf",overwrite:true,template:"security/${securityProvider}/main.tf.tpl",bindings:[])

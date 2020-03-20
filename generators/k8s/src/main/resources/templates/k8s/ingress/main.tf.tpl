@@ -2,19 +2,7 @@
  * Kubernetes Ingress module
  */
 
-provider "kubernetes" {}
 
-variable "ingress_name" {
-    type = string
-    description = "Nome do objeto a ser criado no Kubernetes para o ingress. Se nao informado um nome aleatorio sera gerado"
-    default = "${k8s.ingressName(endpoint)}"
-}
-
-variable "ingress_host" {
-    type = string
-    description = "Hostname a ser utilizado no ingress"
-    default = "${endpoint.name}"
-}
 
 <% if ( config?.security?.enabled?: false ) { %>
 <% def security_provider = config?.security?.provider?: 'keycloak' %>

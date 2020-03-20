@@ -11,7 +11,7 @@ def dollar = '$'
 //================================================================== Ingress
 <% env.endpoints.each { ep -> %>
 module "ingress_${tf.moduleName(ep.name)}" {
- 	source = "./ingress/${ep.name}"
+ 	source = "./modules/ingress/${ep.name}"
 	
 <% if ( config?.security?.enabled?: false ) { %>
 	keycloak_host = var.keycloak_host
@@ -24,15 +24,8 @@ module "ingress_${tf.moduleName(ep.name)}" {
 //================================================================== Externals Endpoints
 <% env.externalEndpoints.each { ep -> %>
 
-// Endpoint: ${ep.name}
-variable "external_${tf.moduleName(ep.name)}_target" {
-    type = string
-    description = "Endereço físico do serviço externo ${ep.name}"
-    default = "${ep.target}" 
-}
-
 module "external_${tf.moduleName(ep.name)}" {
-    source = "./external/${ep.name}"
+    source = "./modules/external/${ep.name}"
     target_address = var.external_${tf.moduleName(ep.name)}_target
 }
 
@@ -43,7 +36,7 @@ module "external_${tf.moduleName(ep.name)}" {
  
 <% env.deployments.each { dep -> %>
 module "${tf.moduleName(dep.name)}" {
-  source = "./${dep.name}"
+  source = "./modules/${dep.name}"
 } 
 <% } %>
 
@@ -55,38 +48,9 @@ module "${tf.moduleName(dep.name)}" {
 def messaging_provider = config?.messaging?.provider?:'rabbitmq'
 %>
 
-variable "management_endpoint" {
-	type = string
-	description = "Endpoint para configuração do sistema de mensageria. Utilizar quando o TF não tiver acesso direto ao servidor"
-	default = ""
-}
-
-<% if ( "rabbitmq" == messaging_provider ) { %>
-	variable "rabbitmq_management_username" {
-		type = string
-		description = "Usuário administrativo para o RabbitMQ"
-		default = "admin"
-	}
-	
-	variable "rabbitmq_management_password" {
-		type = string
-		description = "Senha do usuário administrativo do RabbitMQ"
-		default = "admin"
-	}
-	
-<% } %>
-	
-
-<%  if ( config.messaging.external ) { %>
-	variable "message_broker_address" {
-		type = string
-		description = "Hostname do servidor de mensageria externo a ser utilizado"
-		default = "broker.example.com"
-	}
-<% } %>
 	
 module "messaging" {
-	source = "./messaging/${messaging_provider}"
+	source = "./modules/messaging/${messaging_provider}"
 <% if ( "rabbitmq" == messaging_provider ) { %>
 	rabbitmq_management_endpoint = var.management_endpoint
 	rabbitmq_management_username = var.rabbitmq_management_username
@@ -102,21 +66,12 @@ module "messaging" {
 
 <% if ( config?.security?.enabled?: false ) { %>
 	
-<% if ( config?.security?.enabled?: false ) { %>
 //================================================================== Security
-	
-variable "keycloak_host" {
-	type = string
-	description = "Hostname para acesso ao keycloak"
-	default = "keycloak.127.0.0.1.xip.io"
-}
-			
-<% } %>
 		
 <% def security_provider = config?.security?.provider?: 'keycloak' %>
 
 module "security" {
-	source = "./security/${security_provider}"	
+	source = "./modules/security/${security_provider}"	
 }
 
 <% } %>

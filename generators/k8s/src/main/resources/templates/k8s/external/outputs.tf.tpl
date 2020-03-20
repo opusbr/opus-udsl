@@ -1,0 +1,3 @@
+/*
+ * External endpoint: ${endpoint.name}
+ */

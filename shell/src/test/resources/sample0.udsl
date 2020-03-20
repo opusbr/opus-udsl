@@ -1,0 +1,23 @@
+package br.com.opussoftware.examples.petshop 
+
+
+def FILA_AUDITORIA = "FilaAuditoria"
+
+Environment("petshop")  { 
+	
+
+	Endpoint('www.petshop.com.br') { 
+		Route( path: "/customers", deployment: "SvcCustomer", contract: "customer.yaml") 
+		Route( path: "/feedback", deployment: "SvcFeedback")
+	} 
+
+
+	Deployment ('SvcCustomer') {
+		Image( name:'opussoftware/petshop-clientes') 
+	} 
+
+	Deployment ('SvcFeedback') { 
+		Image( name:'opussoftware/petshop-feedback') 
+	} 
+	
+} 

@@ -9,6 +9,8 @@ import org.springframework.shell.standard.ShellOption
 import io.github.opusbr.tools.udsl.generator.GeneratorRegistry
 import io.github.opusbr.tools.udsl.generator.ResourceLoader
 import io.github.opusbr.udsl.EnvironmentParser
+import io.github.opusbr.udsl.model.AbstractSpec
+import io.github.opusbr.udsl.model.SpecIssue
 import groovy.util.logging.Slf4j
 
 /**
@@ -78,17 +80,41 @@ class CmdGenerate {
 		
 		// Gera modelos
 		def environments = []
+		List<SpecIssue> modelIssues = []
+
 		modelFiles.each {  
 			log.info "Processando modelo: ${it.name}"
 			def r = it.newReader()
-			def envSpec = environmentParser.parse(r)
-			environments += envSpec
+			def envSpecs = environmentParser.parse(r)
+			envSpecs.each { envSpec ->  
+				envSpec.traverse { AbstractSpec self -> 
+					modelIssues += self.issues
+				}
+			}
+			environments += envSpecs
 		}
 		
-		log.info "${environments.size()} ambientes encontrados. Iniciando geração..."
+		if ( modelIssues.size() > 0 ) {
+			reportIssues(modelIssues)
+			return
+		}
+		
+		log.info "${environments.size()} environment(s) found. Creating artifacts..."
 		gen.generate(environments, config, outputDir, resourceLoader)
 		
-		log.info "Geração finalizada com sucesso"
+		log.info "Project artifacts succesfully generated."
+		
+	}
+	
+	protected void reportIssues(List<SpecIssue> modelIssues) {
+		
+		println "================================================================="
+		println " S T O P"
+		println "================================================================="
+		println "Unable to generate project artifacts due to the following issues:"
+		modelIssues.each { issue ->
+			println "${issue.level}: ${issue.spec.class.simpleName}(${issue.spec.name}) - ${issue.issue}"
+		}
 		
 	}
 	
