@@ -57,11 +57,16 @@ class GeneratorDelegate {
 			throw new IllegalArgumentException("[E54] file name is required")
 		}
 
-		if ( !args.containsKey("template")) {
-			throw new IllegalArgumentException("[E57] template name is required")
+		if ( !args.containsKey("template") && !args.containsKey("content")) {
+			throw new IllegalArgumentException("[E57] template or content is required")
 		}
 
-		file(args.name,args.template,args.overwrite?:false,args.bindings?:[:])		
+		if ( args.containsKey("template")) {
+			file(args.name,args.template,args.overwrite?:false,args.bindings?:[:])
+		}
+		else {
+			file(args.name,args.content,args.overwrite?:false,args.bindings?:[:], false)			
+		}		
 	}
 
 	public def file(String name, String template, boolean overwrite, String bindings) {
@@ -78,24 +83,29 @@ class GeneratorDelegate {
 	/**
 	 * Cria o arquivo no local destino
 	 * @param name
-	 * @param template
+	 * @param templateOrContents
 	 * @param overwrite
 	 * @param bindings
 	 * @return
 	 */
-	public File file(String name, String template, boolean overwrite, Map bindings) {
+	public File file(String name, def templateOrContents, boolean overwrite, Map bindings, boolean isTemplate = true) {
 		checkFtbHook()
 		
 
 		// Bindings passados para o script são os globais mais os específicos
 		// do script
-		def tplBindings = [:]
-		tplBindings.putAll(_globalBindings)
-		tplBindings.putAll(bindings)
-		
-		byte[] content = TemplateHelper.processTemplate(resourceLoader, prefix + template, tplBindings)
-				
-		return fileTreeBuilder.file(name, overwrite, content)
+		if ( isTemplate ) {
+			def tplBindings = [:]
+			tplBindings.putAll(_globalBindings)
+			tplBindings.putAll(bindings)
+			
+			byte[] content = TemplateHelper.processTemplate(resourceLoader, prefix + templateOrContents, tplBindings)
+					
+			return fileTreeBuilder.file(name, overwrite, content)
+		}
+		else {
+			return fileTreeBuilder.file(name, overwrite, templateOrContents)			
+		}
 	}
 	
 	private void checkFtbHook() {
