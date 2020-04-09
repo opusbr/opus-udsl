@@ -21,6 +21,11 @@ class RouteSpec extends AbstractSpec {
 	 */
 	String endpoint
 	
+	/**
+	 * The external client must be authenticated to access this route
+	 */
+	Boolean authenticated
+	
 	@Override
 	public List<AbstractSpec> getChildren() {
 		return []
