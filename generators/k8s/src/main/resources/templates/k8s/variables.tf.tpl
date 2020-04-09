@@ -21,7 +21,7 @@ variable "management_endpoint" {
 	default = ""
 }
 
-<% if ( "rabbitmq" == config?.messaging_provider ) { %>
+<% if ( "rabbitmq" == config?.messaging.provider ) { %>
 variable "rabbitmq_management_username" {
 	type = string
 	description = "Usu�rio administrativo para o RabbitMQ"

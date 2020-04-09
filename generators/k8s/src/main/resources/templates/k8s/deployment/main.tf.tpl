@@ -6,6 +6,7 @@ resource "kubernetes_deployment" "${deployment.name}" {
 
   metadata {
     name = "${k8s.validName(deployment.name)}"
+    namespace = "${config?.deployment?.defaultNamespace?:'default'}"
     labels = {
       app = "${deployment.name}"
     }
@@ -46,6 +47,7 @@ resource "kubernetes_deployment" "${deployment.name}" {
 resource "kubernetes_service" "${deployment.name}" {
 	metadata {
 	  name = "${k8s.validName(deployment.name)}"
+    namespace = "${config?.deployment[deployment.name].namespace?:config?.deployment?.defaultNamespace?:'default'}"
 	}
 	
 	spec {
@@ -56,10 +58,10 @@ resource "kubernetes_service" "${deployment.name}" {
 	  
 	  session_affinity = "ClientIP"
 	  port {
-		port = ${config?.deployment[deployment.name].port?:config?.deployment?.defaultPort?:8080}
+		  port = ${config?.deployment[deployment.name].port?:config?.deployment?.defaultPort?:8080}
 	  }
   
 	  //type = "LoadBalancer"
 	}
-  }
+}
   
