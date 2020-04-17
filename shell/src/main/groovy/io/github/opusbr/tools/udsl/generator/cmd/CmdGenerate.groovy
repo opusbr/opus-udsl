@@ -13,6 +13,8 @@ import io.github.opusbr.udsl.model.AbstractSpec
 import io.github.opusbr.udsl.model.SpecIssue
 import groovy.util.logging.Slf4j
 
+import io.github.opusbr.tools.udsl.generator.GeneratorConfig
+
 /**
  * Entrypoint principal para geração de código a partir de um modelo de solução descrito
  * a partir de um conjunto de arquivos uDSL.
@@ -31,6 +33,10 @@ class CmdGenerate {
 	
 	@Autowired
 	private ResourceLoader resourceLoader;
+	
+	
+	@Autowired
+	private GeneratorConfig generatorConfig
 	
 	
 	@ShellMethod(value="Gera artefatos para o ambiente alvo a partir dos arquivos uDSL especificados")
@@ -52,10 +58,21 @@ class CmdGenerate {
 			value = ["-e", "--env"],
 			help = "Environment a ser utilizado para a parametrização. Se não fornecido, será utilizado o Environment padrão do arquivo de configuração",
 			defaultValue = "" )
-		String environment 		
+		String environment 	,
+		@ShellOption(
+			value= ["-t","--templatesDir"],
+			defaultValue = "",
+			help="Diretório contendo templates customizados para a geração")
+		File customTemplatesDir
+
 		) {
 		
 		log.info "Diretório de saída informado: ${outputDir}"
+		
+		if( customTemplatesDir.toString()  != ""  && customTemplatesDir.isDirectory()) {
+			log.info "Custom templates directory: ${customTemplatesDir}"
+			this.generatorConfig.customTemplatesDir = customTemplatesDir	
+		}
 		
 		// Processa arquivo de configuração passado
 		log.info "Processando arquivo de parametrização: ${specFileOrDir}"
