@@ -25,4 +25,13 @@ class K8SHelper {
 		}).join()
 
 	}
+	
+	
+	static String validNameFromDockerImage(String dockerImageName) {
+
+		if(dockerImageName.contains("/")){
+			dockerImageName = dockerImageName.substring(dockerImageName.lastIndexOf('/')+1)
+		}
+		return validName(dockerImageName);
+	}
 }

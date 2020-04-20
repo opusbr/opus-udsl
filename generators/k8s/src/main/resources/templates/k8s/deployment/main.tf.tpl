@@ -29,14 +29,17 @@ resource "kubernetes_deployment" "${deployment.name}" {
       }
 
       spec {
+
+<% if ( config?.deployment[deployment.name]?.imagePullSecrets?: config?.deployment.imagePullSecrets ) { %>	
         image_pull_secrets {
-          name = "docker-config"
+          name = "${ config?.deployment[deployment.name]?.imagePullSecrets?: config?.deployment.imagePullSecrets }"
         }
+<% } %>
         
 <% deployment.images.each { image -> %>      
         container {
           image = "${image.name}"
-          name  = "${k8s.validName(image.name)}"   
+          name  = "${k8s.validNameFromDockerImage(image.name)}"   
         }
 <% } %>
       }
