@@ -40,6 +40,12 @@ resource "kubernetes_deployment" "${deployment.name}" {
         container {
           image = "${image.name}"
           name  = "${k8s.validNameFromDockerImage(image.name)}"   
+<% if ( config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.command ) { %>	
+          command = ${config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.command}
+<% } %>
+<% if ( config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.args ) { %>	
+          args = ${config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.args}
+<% } %>
         }
 <% } %>
       }
