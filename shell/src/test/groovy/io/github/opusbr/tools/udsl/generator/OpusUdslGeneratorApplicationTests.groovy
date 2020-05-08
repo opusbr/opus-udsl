@@ -71,6 +71,34 @@ public class OpusUdslGeneratorApplicationTests {
 		
 	}
 
+//  Aguardando resolução do issue ref à migração para o PicoCLI
+	@Test
+	public void testGenerateSample1EC2andK8S() {
+		
+		
+		def tempDir = Files.createDirectories(FileSystems.getDefault().getPath("target/sample1-ec2andk8s"));
+		def modelFile = new File(this.getClass().getResource("/sample1.udsl").toURI())
+		def configFile = [
+			new File(this.getClass().getResource("/sample1-ec2.config").toURI()),
+			new File(this.getClass().getResource("/sample1-k8s.config").toURI())
+		]
+			
+		
+		def result = shell.evaluate(new Input() {
+	
+			@Override
+			public String rawText() {
+				return "generate -i ${modelFile.absolutePath} -s ${configFile[0].absolutePath},${configFile[1].absolutePath} -o ${tempDir} -e qa";
+			}
+		})
+		
+		if ( result instanceof Throwable ) {
+			log.error "Erro executando comando: ${result.message}", result
+			throw result
+		}
+		
+	}
+
 	
 	@Test
 	public void testGenerateK8SFromDir() {

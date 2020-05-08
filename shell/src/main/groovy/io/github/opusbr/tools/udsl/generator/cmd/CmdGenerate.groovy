@@ -48,7 +48,7 @@ class CmdGenerate {
 		@ShellOption(
 			value= ["-s","--spec"],
 			help="Arquivo ou diretório contendo parâmetros para geração do código")
-		File specFileOrDir,
+		File[] specFileOrDir,
 		@ShellOption(
 			value= ["-o","--outputDir"],
 			help="Diretório onde os artefatos serão criados. O diretório será criado caso não exista")
@@ -63,61 +63,59 @@ class CmdGenerate {
 			value= ["-t","--templatesDir"],
 			defaultValue = "",
 			help="Diretório contendo templates customizados para a geração")
-		File customTemplatesDir
-
-		) {
-		
-		log.info "Diretório de saída informado: ${outputDir}"
-		
-		if( customTemplatesDir.toString()  != ""  && customTemplatesDir.isDirectory()) {
-			log.info "Custom templates directory: ${customTemplatesDir}"
-			this.generatorConfig.customTemplatesDir = customTemplatesDir	
-		}
-		
-		// Processa arquivo de configuração passado
-		log.info "Processando arquivo de parametrização: ${specFileOrDir}"
-		def config = createConfig(environment,specFileOrDir)
-		
-		
-		if ( !config["generator"]) {
-			throw new IllegalArgumentException("Arquivo de configuração não possui a chave 'generator'. Verifique o arquivo de configuração")
-		}
-
-		// Valida o gerador passado
-		def gen = generatorRegistry.findByName(config.generator)
-		log.info "Gerador selecionado: ${gen.name}, versão ${gen.version}"
+		File customTemplatesDir) {
 		
 		
 		// Obtem lista de modelos
 		def modelFiles = buildModelFileList(inputFileOrDir)
 		if ( modelFiles.size() == 0 ) {
-			throw new IllegalArgumentException("Nenhum modelo encontrado. Verifique se o caminho informado é válido e contem arquivos com a extensão .udsl")
+			throw new IllegalArgumentException("No model found. Check if you've entered the correct path.")
 		}
 		
 		
-		// Gera modelos
+		// Processa modelos informados
 		def environments = []
 		List<SpecIssue> modelIssues = []
 
-		modelFiles.each {  
-			log.info "Processando modelo: ${it.name}"
+		modelFiles.each {
+			log.info "Processing model: ${it.name}"
 			def r = it.newReader()
 			def envSpecs = environmentParser.parse(r)
-			envSpecs.each { envSpec ->  
-				envSpec.traverse { AbstractSpec self -> 
+			envSpecs.each { envSpec ->
+				envSpec.traverse { AbstractSpec self ->
 					modelIssues += self.issues
 				}
 			}
 			environments += envSpecs
 		}
 		
+		// Don't bother to move to the generation phase
+		// if we don't have a valid model
 		if ( modelIssues.size() > 0 ) {
 			reportIssues(modelIssues)
 			return
 		}
+
+		log.info "${environments.size()} environment(s) found. Processing configuration..."
 		
-		log.info "${environments.size()} environment(s) found. Creating artifacts..."
-		gen.generate(environments, config, outputDir, resourceLoader)
+		// Processa arquivos de configuração passados
+		def configMap = createConfig(environment,specFileOrDir)
+		
+		
+		if( customTemplatesDir.toString()  != ""  && customTemplatesDir.isDirectory()) {
+			log.info "Custom templates directory: ${customTemplatesDir}"
+			this.generatorConfig.customTemplatesDir = customTemplatesDir
+		}
+		
+		log.info "Output directory: ${outputDir}"
+		// Roda cada gerador em sequencia
+		configMap.each { generator, config -> 
+			// Valida o gerador passado
+			def gen = generatorRegistry.findByName(generator)			
+			log.info "Using generator: ${gen.name}, versão ${gen.version}"									
+			log.info "Generating artifacts..."
+			gen.generate(environments, config, outputDir, resourceLoader)
+		}
 		
 		log.info "Project artifacts succesfully generated."
 		
@@ -135,40 +133,84 @@ class CmdGenerate {
 		
 	}
 	
-	protected ConfigObject createConfig(String environment, File configFileOrDir ) {
+	/**
+	 * Processa lista de arquivos de configuração e/ou diretórios passados
+	 * @param environment
+	 * @param configFilesOrDirs
+	 * @return mapa onde a chave é o nome do gerador e o valor um ConfigObject com as configurações pertinentes
+	 */
+	protected ConfigObject createConfig(String environment, File[] configFilesOrDirs ) {
 		
-		def configs = [];
-		
-		if ( configFileOrDir.isFile()) {
-			configs << configFileOrDir;
-		}
-		else if (configFileOrDir.isDirectory()){
+		def configs = new HashMap<String,ConfigObject>()
+
+		for( File configFileOrDir : configFilesOrDirs ) {		
+
+			def configsToProcess = []		
 			
-			configFileOrDir.eachFileMatch( ~/.*.config/) { file ->
-				configs << file
-			}			
-		}
-		
-		ConfigObject mergedConfig = null; 
-		
-		// Garante ordem consistente de merge...
-		configs = configs.sort { File a,File b -> a.name <=> b.name } 
-		
-		configs.each { File configFile ->
+			// Se for um arquivo, inclui na lista a ser processada
+			if ( configFileOrDir.isFile()) {
+				configsToProcess << configFileOrDir;
+			}
+			else if (configFileOrDir.isDirectory()){				
+				configFileOrDir.eachFileMatch( ~/.*.config/) { file ->
+					configsToProcess << file
+				}			
+			}
+			else {
+				// It's not a file, It's not a directory, it's Super File !
+				// No. This is just the CLI parser doing its thing...
+				continue
+			}
+						
+			// Garante ordem consistente de merge...
+			configsToProcess = configsToProcess.sort { File a,File b -> a.name <=> b.name } 
 			
-			log.info("[I113] Processing config file: ${configFile}")
-			def partialConfig = new ConfigSlurper(environment).parse(configFile.toURI().toURL())
+			ConfigObject partialConfig = null
 			
+			// Processa arquivo solitário ou no diretório
+			configsToProcess.each { File configFile ->				
+				log.info("[I113] Processing config file: '${configFile}'")
+				
+				if ( !configFile.isFile()) {
+					throw new IllegalArgumentException("${configFile}: invalid configuration file")
+				}
+				
+				def tmpConfig = new ConfigSlurper(environment).parse(configFile.toURI().toURL())
+				if ( tmpConfig == null ) {
+					throw new IllegalArgumentException("Unable to parse configuration file ${configFile}")
+				}
+				if ( partialConfig == null ) {
+					partialConfig = tmpConfig
+				}
+				else {
+					partialConfig.merge(tmpConfig)
+				}				
+			}
+			
+			if ( !partialConfig["generator"]) {
+				if ( configFileOrDir.isFile()) {
+					throw new IllegalArgumentException("Invalid configuration file ${configFileOrDir}. Required property 'generator' not found.")
+				}
+				else {
+					throw new IllegalArgumentException("Invalid configuration directory ${configFileOrDir}. Required property 'generator' not found in any config file.")					
+				}
+			}
+			
+			// Adiciona as configurações na entrada correspondente
+			// ao gerador
+			def generator = partialConfig["generator"]	
+			def mergedConfig = configs[generator]
 			if ( mergedConfig == null ) {
 				mergedConfig = partialConfig;
+				configs[generator] = mergedConfig
 			}
 			else {
 				mergedConfig.merge(partialConfig)
 			}
-			
+
 		}
 
-		return mergedConfig;	
+		return configs;	
 	}
 	
 	/**
