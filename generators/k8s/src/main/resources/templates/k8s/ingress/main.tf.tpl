@@ -23,6 +23,7 @@ resource "kubernetes_ingress" "ingress" {
 
     metadata {
         name = local.iname
+        namespace = "${config?.deployment?.defaultNamespace?:'default'}"
         annotations = map(
             "nginx.ingress.kubernetes.io/rewrite-target","/"
         )

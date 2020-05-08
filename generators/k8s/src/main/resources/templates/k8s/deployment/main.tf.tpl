@@ -6,6 +6,7 @@ resource "kubernetes_deployment" "${deployment.name}" {
 
   metadata {
     name = "${k8s.validName(deployment.name)}"
+    namespace = "${config?.deployment?.defaultNamespace?:'default'}"
     labels = {
       app = "${deployment.name}"
     }
@@ -28,14 +29,23 @@ resource "kubernetes_deployment" "${deployment.name}" {
       }
 
       spec {
+
+<% if ( config?.deployment[deployment.name]?.imagePullSecrets?: config?.deployment.imagePullSecrets ) { %>	
         image_pull_secrets {
-          name = "docker-config"
+          name = "${ config?.deployment[deployment.name]?.imagePullSecrets?: config?.deployment.imagePullSecrets }"
         }
+<% } %>
         
 <% deployment.images.each { image -> %>      
         container {
           image = "${image.name}"
-          name  = "${k8s.validName(image.name)}"   
+          name  = "${k8s.validNameFromDockerImage(image.name)}"   
+<% if ( config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.command ) { %>	
+          command = ${config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.command}
+<% } %>
+<% if ( config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.args ) { %>	
+          args = ${config?.deployment[deployment.name][k8s.validNameFromDockerImage(image.name)]?.args}
+<% } %>
         }
 <% } %>
       }
@@ -46,6 +56,7 @@ resource "kubernetes_deployment" "${deployment.name}" {
 resource "kubernetes_service" "${deployment.name}" {
 	metadata {
 	  name = "${k8s.validName(deployment.name)}"
+    namespace = "${config?.deployment[deployment.name].namespace?:config?.deployment?.defaultNamespace?:'default'}"
 	}
 	
 	spec {
@@ -56,10 +67,10 @@ resource "kubernetes_service" "${deployment.name}" {
 	  
 	  session_affinity = "ClientIP"
 	  port {
-		port = ${config?.deployment[deployment.name].port?:config?.deployment?.defaultPort?:8080}
+		  port = ${config?.deployment[deployment.name].port?:config?.deployment?.defaultPort?:8080}
 	  }
   
 	  //type = "LoadBalancer"
 	}
-  }
+}
   

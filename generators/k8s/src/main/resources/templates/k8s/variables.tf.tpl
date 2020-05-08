@@ -7,7 +7,7 @@
  // Endpoint: ${ep.name}
  variable "external_${tf.moduleName(ep.name)}_target" {
 	 type = string
-	 description = "Endereço físico do serviço externo ${ep.name}"
+	 description = "Endereï¿½o fï¿½sico do serviï¿½o externo ${ep.name}"
 	 default = "${ep.target}"
  }
  	 
@@ -17,20 +17,20 @@
 	
 variable "management_endpoint" {
 	type = string
-	description = "Endpoint para configuração do sistema de mensageria. Utilizar quando o TF não tiver acesso direto ao servidor"
+	description = "Endpoint para configuraï¿½ï¿½o do sistema de mensageria. Utilizar quando o TF nï¿½o tiver acesso direto ao servidor"
 	default = ""
 }
 
-<% if ( "rabbitmq" == messaging_provider ) { %>
+<% if ( "rabbitmq" == config?.messaging.provider ) { %>
 variable "rabbitmq_management_username" {
 	type = string
-	description = "Usuário administrativo para o RabbitMQ"
+	description = "Usuï¿½rio administrativo para o RabbitMQ"
 	default = "admin"
 }
 
 variable "rabbitmq_management_password" {
 	type = string
-	description = "Senha do usuário administrativo do RabbitMQ"
+	description = "Senha do usuï¿½rio administrativo do RabbitMQ"
 	default = "admin"
 }	
 <% } %>
