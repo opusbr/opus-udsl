@@ -37,7 +37,7 @@ public class OpusUdslGeneratorApplicationTests {
 		def result = shell.evaluate(new Input() {
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g k8s -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -60,7 +60,7 @@ public class OpusUdslGeneratorApplicationTests {
 	
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g ec2 -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -88,7 +88,7 @@ public class OpusUdslGeneratorApplicationTests {
 	
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile[0].absolutePath},${configFile[1].absolutePath} -o ${tempDir} -e qa";
+				return "generate -g k8s,ec2 -i ${modelFile.absolutePath} -s ${configFile[0].absolutePath},${configFile[1].absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -111,7 +111,7 @@ public class OpusUdslGeneratorApplicationTests {
 
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g k8s -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -132,7 +132,7 @@ public class OpusUdslGeneratorApplicationTests {
 		def result = shell.evaluate(new Input() {
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g k8s -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -153,7 +153,7 @@ public class OpusUdslGeneratorApplicationTests {
 		def result = shell.evaluate(new Input() {
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g k8s -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -175,7 +175,7 @@ public class OpusUdslGeneratorApplicationTests {
 	
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa -t src/test/resources/custom";
+				return "generate -g ec2 -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa -t src/test/resources/custom";
 			}
 		})
 		
@@ -199,7 +199,7 @@ public class OpusUdslGeneratorApplicationTests {
 	
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g ec2 -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		
@@ -222,7 +222,7 @@ public class OpusUdslGeneratorApplicationTests {
 	
 			@Override
 			public String rawText() {
-				return "generate -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
+				return "generate -g ec2 -i ${modelFile.absolutePath} -s ${configFile.absolutePath} -o ${tempDir} -e qa";
 			}
 		})
 		

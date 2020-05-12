@@ -42,12 +42,16 @@ class CmdGenerate {
 	@ShellMethod(value="Gera artefatos para o ambiente alvo a partir dos arquivos uDSL especificados")
 	public String generate(
 		@ShellOption(
+			value= ["-g","--generators"],
+			help="Gerador a ser utilizado. Para uma lista dos geradores disponíveis, utilize o comando listGenerators. Para utilizar mais de um gerador, informe os nomes em uma lista separada por vírgulas")
+		String[] generators,
+		@ShellOption(
 			value= ["-i","--input"],
 			help="Arquivo ou diretório de entrada. Caso seja um diretório, todos os arquivos com extensão .udsl serão processados")
 		File inputFileOrDir,
 		@ShellOption(
 			value= ["-s","--spec"],
-			help="Arquivo ou diretório contendo parâmetros para geração do código")
+			help="Arquivo ou diretório contendo parâmetros para geração do código. Para múltiplos arquivos e ou diretórios, separe os mesmos por vírgulas")
 		File[] specFileOrDir,
 		@ShellOption(
 			value= ["-o","--outputDir"],
@@ -99,7 +103,7 @@ class CmdGenerate {
 		log.info "${environments.size()} environment(s) found. Processing configuration..."
 		
 		// Processa arquivos de configuração passados
-		def configMap = createConfig(environment,specFileOrDir)
+		def config = createConfig(environment,specFileOrDir)
 		
 		
 		if( customTemplatesDir.toString()  != ""  && customTemplatesDir.isDirectory()) {
@@ -109,10 +113,10 @@ class CmdGenerate {
 		
 		log.info "Output directory: ${outputDir}"
 		// Roda cada gerador em sequencia
-		configMap.each { generator, config -> 
+		generators.each { generator -> 
 			// Valida o gerador passado
 			def gen = generatorRegistry.findByName(generator)			
-			log.info "Using generator: ${gen.name}, versão ${gen.version}"									
+			log.info "Using generator: ${gen.name}, version ${gen.version}"									
 			log.info "Generating artifacts..."
 			gen.generate(environments, config, outputDir, resourceLoader)
 		}
@@ -137,11 +141,11 @@ class CmdGenerate {
 	 * Processa lista de arquivos de configuração e/ou diretórios passados
 	 * @param environment
 	 * @param configFilesOrDirs
-	 * @return mapa onde a chave é o nome do gerador e o valor um ConfigObject com as configurações pertinentes
+	 * @return ConfigObject resultante do merge das configurações obtidas
 	 */
 	protected ConfigObject createConfig(String environment, File[] configFilesOrDirs ) {
 		
-		def configs = new HashMap<String,ConfigObject>()
+		ConfigObject mergedConfig = null
 
 		for( File configFileOrDir : configFilesOrDirs ) {		
 
@@ -186,31 +190,17 @@ class CmdGenerate {
 					partialConfig.merge(tmpConfig)
 				}				
 			}
-			
-			if ( !partialConfig["generator"]) {
-				if ( configFileOrDir.isFile()) {
-					throw new IllegalArgumentException("Invalid configuration file ${configFileOrDir}. Required property 'generator' not found.")
-				}
-				else {
-					throw new IllegalArgumentException("Invalid configuration directory ${configFileOrDir}. Required property 'generator' not found in any config file.")					
-				}
-			}
-			
-			// Adiciona as configurações na entrada correspondente
-			// ao gerador
-			def generator = partialConfig["generator"]	
-			def mergedConfig = configs[generator]
+
+			// 	
 			if ( mergedConfig == null ) {
-				mergedConfig = partialConfig;
-				configs[generator] = mergedConfig
+				mergedConfig = partialConfig
 			}
 			else {
 				mergedConfig.merge(partialConfig)
 			}
-
 		}
 
-		return configs;	
+		return mergedConfig;	
 	}
 	
 	/**
